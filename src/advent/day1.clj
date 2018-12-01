@@ -1,9 +1,10 @@
 (ns advent.day1)
 
+(defn to-i
+  [s]
+  (Integer/parseInt s))
+
 (defn day1
   [file-name]
-  (let [lines (-> file-name
-                  slurp
-                  (clojure.string/split #"\n"))
-        nums (map #(Integer. %) lines)]
-    (reduce + nums)))
+  (with-open [rdr (clojure.java.io/reader file-name)]
+    (reduce + (map to-i (line-seq rdr)))))
