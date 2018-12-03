@@ -26,17 +26,11 @@
 
 ; What is the checksum for your list of box IDs?
 
-(defn- new-cnt
-  [m key letter-cnts]
-  (if (some #{key} letter-cnts) (inc (m key)) (m key)))
-
 (defn- check-id
   [m id]
   (let [letter-cnts (-> id frequencies vals)
-        new-cntr (fn [key] (if (some #{key} letter-cnts) (inc (m key)) (m key)))
-        new-2 (new-cntr 2)
-        new-3 (new-cntr 3)]
-    {2 new-2, 3 new-3}))
+        new-cnt (fn [key] (if (some #{key} letter-cnts) (inc (m key)) (m key)))]
+    {2 (new-cnt 2), 3 (new-cnt 3)}))
 
 (defn checksum
   "Day 2, part1"
