@@ -30,9 +30,9 @@
   [s]
   (loop [m {} chars s]
     (if (empty? chars) m
-        (let [nxt (first chars) rst (rest chars)]
-          (if (m nxt) (recur (assoc m nxt (inc (m nxt))) rst)
-              (recur (assoc m nxt 1) rst))))))
+        (let [nxt (first chars)
+              cnt (or (m nxt) 0)] ; (get m nxt 0) would also work
+          (recur (assoc m nxt (inc cnt)) (rest chars))))))
 
 (defn day2-part1
   []
