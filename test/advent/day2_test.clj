@@ -3,5 +3,5 @@
             [advent.day2 :refer :all]))
 
 (deftest test-day2-part1
-  (testing "day2-part1"
-    (is (= true true))))
+  (testing "checksum"
+    (is (= 8715 (checksum "data/day2.txt")))))
