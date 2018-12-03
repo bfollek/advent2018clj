@@ -72,6 +72,6 @@
   [file-name]
   (loop [freq 0 changes (cycle (get-changes file-name)) seen {}]
     (let [freq (+ freq (first changes))]
-      (if (get seen freq)
+      (if (seen freq)
         freq ; Done - We've seen it before
         (recur freq (rest changes) (assoc seen freq true))))))
