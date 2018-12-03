@@ -26,12 +26,14 @@
 
 ; What is the checksum for your list of box IDs?
 
+; Turns out frequencies does exactly this...
+; So would (reduce #(assoc %1 %2 (inc (%1 %2 0))) {} s)
 (defn count-chars
   [s]
   (loop [m {} chars s]
     (if (empty? chars) m
         (let [nxt (first chars)
-              cnt (or (m nxt) 0)] ; (get m nxt 0) would also work
+              cnt (or (m nxt) 0)] ; (m nxt 0) and (get m nxt 0) would also work
           (recur (assoc m nxt (inc cnt)) (rest chars))))))
 
 (defn day2-part1
