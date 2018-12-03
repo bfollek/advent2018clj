@@ -28,9 +28,11 @@
 
 (defn- check-id
   [m id]
-  (let [letter-cnts (-> id frequencies vals)
-        new-cnt (fn [key] (if (some #{key} letter-cnts) (inc (m key)) (m key)))]
-    {2 (new-cnt 2), 3 (new-cnt 3)}))
+  (let [freqs (-> id frequencies vals)]
+    (letfn [(new-cnt
+              [key]
+              {key, (if (some #{key} freqs) (inc (m key)) (m key))})]
+      (merge (new-cnt 2) (new-cnt 3)))))
 
 (defn checksum
   "Day 2, part1"
