@@ -33,8 +33,9 @@
 (defn- check-id
   [m id]
   (let [letter-cnts (-> id frequencies vals)
-        new-2 (new-cnt m 2 letter-cnts)
-        new-3 (new-cnt m 3 letter-cnts)]
+        new-cntr (fn [key] (if (some #{key} letter-cnts) (inc (m key)) (m key)))
+        new-2 (new-cntr 2)
+        new-3 (new-cntr 3)]
     {2 new-2, 3 new-3}))
 
 (defn checksum
