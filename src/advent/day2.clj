@@ -26,16 +26,37 @@
 
 ; What is the checksum for your list of box IDs?
 
-; Turns out frequencies does exactly this...
-; So would (reduce #(assoc %1 %2 (inc (%1 %2 0))) {} s)
-(defn count-chars
-  [s]
-  (loop [m {} chars s]
-    (if (empty? chars) m
-        (let [nxt (first chars)
-              cnt (or (m nxt) 0)] ; (m nxt 0) and (get m nxt 0) would also work
-          (recur (assoc m nxt (inc cnt)) (rest chars))))))
+(defn- new-cnt
+  [m key letter-cnts]
+  (if (some #{key} letter-cnts) (inc (m key)) (m key)))
 
-(defn day2-part1
-  []
-  true)
+(defn- check-id
+  [m id]
+  (let [letter-cnts (-> id frequencies vals)
+        new-2 (new-cnt m 2 letter-cnts)
+        new-3 (new-cnt m 3 letter-cnts)]
+    {2 new-2, 3 new-3}))
+
+(defn checksum
+  "Day 2, part1"
+  [file-name]
+  (let [ids (-> file-name slurp str/split-lines)
+        m (reduce check-id {2 0, 3 0} ids)]
+    (* (m 2) (m 3))))
+
+; --- Part Two ---
+; Confident that your list of box IDs is complete, you're ready to find the boxes full of prototype fabric.
+
+; The boxes will have IDs which differ by exactly one character at the same position in both strings. For example, given the following box IDs:
+
+; abcde
+; fghij
+; klmno
+; pqrst
+; fguij
+; axcye
+; wvxyz
+; The IDs abcde and axcye are close, but they differ by two characters (the second and fourth). However, the IDs fghij and fguij differ by exactly one character, the third (h and u). Those must be the correct boxes.
+
+; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
+
