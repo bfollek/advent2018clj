@@ -56,3 +56,19 @@
 ; The IDs abcde and axcye are close, but they differ by two characters (the second and fourth). However, the IDs fghij and fguij differ by exactly one character, the third (h and u). Those must be the correct boxes.
 
 ; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
+
+(defn has-one-diff?
+  [id1 id2]
+  (->> (rabbithole.core/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+       (filter #(not= (first %) (second %))) ; => ([\c \x])
+       count
+       (= 1)))
+
+(defn find-correct-ids
+  [file-name]
+  (let [ids (-> file-name slurp str/split-lines)]
+    (set (flatten (for [id-1 ids id-2 ids :when (has-one-diff? id-1 id-2)]
+                    [id-1 id-2])))))
+
+(defn common-letters
+  [file-name])
