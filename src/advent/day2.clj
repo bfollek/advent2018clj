@@ -59,10 +59,10 @@
 
 (defn has-one-diff?
   [id1 id2]
-  (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
-       (filter #(not= (first %) (second %))) ; => ([\c \x])
-       count
-       (= 1)))
+  (let [pairs (rh/zip-up id1 id2)] ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+    (-> (for [pair pairs :when (not= (first pair) (second pair))] true)
+        count
+        (= 1))))
 
 (defn find-correct-ids
   [file-name]
