@@ -5,3 +5,7 @@
 (deftest test-day2-part1
   (testing "checksum"
     (is (= 8715 (checksum "data/day2.txt")))))
+
+(deftest test-day2-part2
+  (testing "common-letters"
+    (is (= "fvstwblgqkhpuixdrnevmaycd" (common-letters "data/day2.txt")))))

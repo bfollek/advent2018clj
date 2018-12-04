@@ -59,7 +59,7 @@
 
 (defn has-one-diff?
   [id1 id2]
-  (->> (rabbithole.core/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+  (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
        (filter #(not= (first %) (second %))) ; => ([\c \x])
        count
        (= 1)))
@@ -67,16 +67,20 @@
 (defn find-correct-ids
   [file-name]
   (let [ids (-> file-name slurp str/split-lines)]
-    ;; The problem is that this keeps going after it has a solution - how to break out?
-    (-> (for [id-1 ids id-2 ids :when (has-one-diff? id-1 id-2)]
-          [id-1 id-2])
-        flatten
-        set)))
+    (->> (for [id1 ids id2 ids :when (has-one-diff? id1 id2)]
+           [id1 id2])
+         (take 1)
+         flatten)))
 
 (defn common-letters
   [file-name]
-  (let [s (find-correct-ids file-name)]
-    (->> (rabbithole.core/zip-up (first s) (second s)) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+  (let [[id1 id2] (find-correct-ids file-name)]
+    (->> (rh/zip-up id1 id2)
          (filter #(= (first %) (second %)))
          (map first)
          str/join)))
+  ; (let [[id1 id2] (find-correct-ids file-name)
+  ;       pairs (rh/zip-up id1 id2)]
+  ;   (-> (for [pair pairs :when (= (first pair) (second pair))]
+  ;         (first pair))
+  ;       str/join)))
