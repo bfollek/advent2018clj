@@ -74,13 +74,8 @@
 
 (defn common-letters
   [file-name]
-  (let [[id1 id2] (find-correct-ids file-name)]
-    (->> (rh/zip-up id1 id2)
-         (filter #(= (first %) (second %)))
-         (map first)
-         str/join)))
-  ; (let [[id1 id2] (find-correct-ids file-name)
-  ;       pairs (rh/zip-up id1 id2)]
-  ;   (-> (for [pair pairs :when (= (first pair) (second pair))]
-  ;         (first pair))
-  ;       str/join)))
+  (let [[id1 id2] (find-correct-ids file-name)
+        pairs (rh/zip-up id1 id2)]
+    (-> (for [pair pairs :when (= (first pair) (second pair))]
+          (first pair))
+        str/join)))
