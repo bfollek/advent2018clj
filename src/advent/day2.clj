@@ -67,8 +67,16 @@
 (defn find-correct-ids
   [file-name]
   (let [ids (-> file-name slurp str/split-lines)]
-    (set (flatten (for [id-1 ids id-2 ids :when (has-one-diff? id-1 id-2)]
-                    [id-1 id-2])))))
+    ;; The problem is that this keeps going after it has a solution - how to break out?
+    (-> (for [id-1 ids id-2 ids :when (has-one-diff? id-1 id-2)]
+          [id-1 id-2])
+        flatten
+        set)))
 
 (defn common-letters
-  [file-name])
+  [file-name]
+  (let [s (find-correct-ids file-name)]
+    (->> (rabbithole.core/zip-up (first s) (second s)) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+         (filter #(= (first %) (second %)))
+         (map first)
+         str/join)))
