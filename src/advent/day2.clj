@@ -29,10 +29,10 @@
 (defn- check-id
   [m id]
   (let [freqs (-> id frequencies vals)]
-    (letfn [(new-cnt
+    (letfn [(update-cnt
               [key]
-              {key, (if (some #{key} freqs) (inc (m key)) (m key))})]
-      (merge (new-cnt 2) (new-cnt 3)))))
+              (if (some #{key} freqs) (inc (m key)) (m key)))]
+      (assoc m 2 (update-cnt 2) 3 (update-cnt 3)))))
 
 (defn checksum
   "Day 2, part1"
@@ -56,4 +56,3 @@
 ; The IDs abcde and axcye are close, but they differ by two characters (the second and fourth). However, the IDs fghij and fguij differ by exactly one character, the third (h and u). Those must be the correct boxes.
 
 ; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
-
