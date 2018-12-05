@@ -57,12 +57,16 @@
 
 ; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
 
+(defn count-diffs
+  [acc nxt]
+  (let [i (if (not= (first nxt) (second nxt)) 1 0)]
+    (+ i acc)))
+
 (defn has-one-diff?
   [id1 id2]
-  (let [pairs (rh/zip-up id1 id2)] ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
-    (-> (for [pair pairs :when (not= (first pair) (second pair))] true)
-        count
-        (= 1))))
+  (let [pairs (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+        cnt (reduce count-diffs 0 pairs)]
+    (= 1 cnt)))
 
 (defn find-correct-ids
   [file-name]
