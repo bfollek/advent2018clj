@@ -1,5 +1,5 @@
 (defproject advent "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "Advent of Code 2018"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

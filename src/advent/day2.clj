@@ -1,5 +1,6 @@
 (ns advent.day2
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [rabbithole.core :as rh]))
 
 ; --- Day 2: Inventory Management System ---
@@ -57,16 +58,11 @@
 
 ; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
 
-(defn count-diffs
-  [acc nxt]
-  (let [i (if (not= (first nxt) (second nxt)) 1 0)]
-    (+ i acc)))
-
 (defn has-one-diff?
   [id1 id2]
-  (let [pairs (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
-        cnt (reduce count-diffs 0 pairs)]
-    (= 1 cnt)))
+  (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+       (reduce (fn [acc nxt] (if (not= (first nxt) (second nxt)) (inc acc) acc)) 0)
+       (= 1)))
 
 (defn find-correct-ids
   [file-name]
@@ -80,6 +76,6 @@
   [file-name]
   (let [[id1 id2] (find-correct-ids file-name)
         pairs (rh/zip-up id1 id2)]
-    (-> (for [pair pairs :when (= (first pair) (second pair))]
-          (first pair))
-        str/join)))
+    (->> (remove #(not= (first %) (second %)) pairs)
+         (map first)
+         str/join)))
