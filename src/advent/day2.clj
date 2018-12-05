@@ -59,7 +59,7 @@
 
 (defn has-one-diff?
   [id1 id2]
-  (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+  (->> (rh/zip-up id1 id2)
        (reduce (fn [acc nxt] (if (not= (first nxt) (second nxt)) (inc acc) acc)) 0)
        (= 1)))
 
@@ -73,8 +73,8 @@
 
 (defn common-letters
   [file-name]
-  (let [[id1 id2] (find-correct-ids file-name)
-        pairs (rh/zip-up id1 id2)]
-    (->> (remove #(not= (first %) (second %)) pairs)
+  (let [[id1 id2] (find-correct-ids file-name)]
+    (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
+         (remove #(not= (first %) (second %)))
          (map first)
          str/join)))
