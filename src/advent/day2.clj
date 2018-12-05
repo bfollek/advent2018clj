@@ -32,7 +32,7 @@
     (letfn [(update-cnt
               [key]
               (if (some #{key} freqs) (inc (m key)) (m key)))]
-      (assoc m 2 (update-cnt 2) 3 (update-cnt 3)))))
+      (hash-map 2 (update-cnt 2), 3 (update-cnt 3)))))
 
 (defn checksum
   "Day 2, part1"
