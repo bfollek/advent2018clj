@@ -1,6 +1,5 @@
 (ns advent.day2
   (:require [clojure.string :as str]
-            [clojure.set :as set]
             [rabbithole.core :as rh]))
 
 ; --- Day 2: Inventory Management System ---
