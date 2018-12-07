@@ -5,3 +5,7 @@
 (deftest test-day3-part1
   (testing "multi-claimed-inches-of-fabric"
     (is (= 109716 (multi-claimed-inches-of-fabric)))))
+
+(deftest test-day3-part2
+  (testing "no-overlap"
+    (is (= 124 (no-overlap)))))

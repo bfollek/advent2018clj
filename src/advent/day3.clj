@@ -1,5 +1,6 @@
 (ns advent.day3
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [rabbithole.core :as rh]))
 
 ; --- Day 3: No Matter How You Slice It ---
@@ -75,7 +76,7 @@
 (defn multi-claimed-inches-of-fabric
   []
   (->> (read-claims)
-       (reduce map-claim {})     ; Map all the Claim points to Claim ids
+       (reduce map-claim {})     ; Map each Claim point to a vector of Claim ids
        vals                      ; Get the vectors of ids
        (filter #(> (count %) 1)) ; Get the vectors with more than one id
        count))                   ; Count them
@@ -86,4 +87,11 @@
 
 ; What is the ID of the only claim that doesn't overlap?
 
-
+(defn no-overlap
+  []
+  (let [claims (read-claims)
+        m (reduce map-claim {} claims)                           ; Map each Claim point to a vector of Claim ids
+        id-vecs (vals m)                                         ; The id vectors from the map
+        just-1 (set (flatten (filter #(= (count %) 1) id-vecs))) ; ids that are alone on a point
+        multi (set (flatten (filter #(> (count %) 1) id-vecs)))] ; ids that are NOT alone on a point
+    (first (set/difference just-1 multi))))                      ; difference is the answer
