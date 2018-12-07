@@ -54,7 +54,7 @@
        (apply ->Claim)))
 
 ;; Each point is a key into the map.
-;; Each map value is an array of Claim id's that include the point.
+;; Each map value is an array of Claim ids that include the point.
 (defn update-point
   [m point id]
   (update m point (fn [current] (if (nil? current) [id] (conj current id)))))
@@ -62,16 +62,16 @@
 ;; Generate all points the Claim covers, and add them to the map.
 (defn map-claim
   [m c]
-  (prn c)
   (let [xs (range (:x c) (+ (:x c) (:x-len c)))
         ys (range (:y c) (+ (:y c) (:y-len c)))
         points (for [x xs y ys] [x y])]
     (reduce #(update-point %1 %2 (:id c)) m points)))
 
-(defn inches-of-fabric
+(defn multi-claimed-inches-of-fabric
   []
   (let [lines (rh/read-lines "data/day3.txt")
         claims (map string-to-claim lines)]
-    (reduce map-claim {} claims)
-    ;(println "here")
-    ))
+    (->> (reduce map-claim {} claims) ; Map all the Claim points to Claim ids
+         vals                         ; Get the vectors of ids
+         (filter #(> (count %) 1))    ; Get the vectors with more than one id
+         count)))                     ; Count them

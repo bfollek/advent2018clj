@@ -3,5 +3,5 @@
             [advent.day3 :refer :all]))
 
 (deftest test-day3-part1
-  (testing "?"
-    (is (= true true))))
+  (testing "multi-claimed-inches-of-fabric"
+    (is (= 109716 (multi-claimed-inches-of-fabric)))))
