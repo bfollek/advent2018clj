@@ -53,6 +53,11 @@
        (map rh/to-int)
        (apply ->Claim)))
 
+(defn read-claims
+  []
+  (let [lines (rh/read-lines "data/day3.txt")]
+    (map string-to-claim lines)))
+
 ;; Each point is a key into the map.
 ;; Each map value is an array of Claim ids that include the point.
 (defn update-point
@@ -69,9 +74,16 @@
 
 (defn multi-claimed-inches-of-fabric
   []
-  (let [lines (rh/read-lines "data/day3.txt")
-        claims (map string-to-claim lines)]
-    (->> (reduce map-claim {} claims) ; Map all the Claim points to Claim ids
-         vals                         ; Get the vectors of ids
-         (filter #(> (count %) 1))    ; Get the vectors with more than one id
-         count)))                     ; Count them
+  (->> (read-claims)
+       (reduce map-claim {})     ; Map all the Claim points to Claim ids
+       vals                      ; Get the vectors of ids
+       (filter #(> (count %) 1)) ; Get the vectors with more than one id
+       count))                   ; Count them
+
+; Amidst the chaos, you notice that exactly one claim doesn't overlap by even a single square inch of fabric with any other claim. If you can somehow draw attention to it, maybe the Elves will be able to make Santa's suit after all!
+
+; For example, in the claims above, only claim 3 is intact after all claims are made.
+
+; What is the ID of the only claim that doesn't overlap?
+
+
