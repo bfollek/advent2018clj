@@ -90,8 +90,10 @@
 (defn no-overlap
   []
   (let [claims (read-claims)
-        m (reduce map-claim {} claims)                           ; Map each Claim point to a vector of Claim ids
-        id-vecs (vals m)                                         ; The id vectors from the map
-        just-1 (set (flatten (filter #(= (count %) 1) id-vecs))) ; ids that are alone on a point
-        multi (set (flatten (filter #(> (count %) 1) id-vecs)))] ; ids that are NOT alone on a point
-    (first (set/difference just-1 multi))))                      ; difference is the answer
+        m (reduce map-claim {} claims)        ; Map each Claim point to a vector of Claim ids
+        id-vecs (vals m)                      ; The id vectors from the map
+        m (group-by #(= (count %) 1) id-vecs) ; point ids that are unique vs. point ids that are NOT unique
+        unique-ids (rh/flat-set (m true))
+        non-unique-ids (rh/flat-set (m false))]
+    ;; ids can be in both collections. The one difference is the answer.
+    (first (set/difference unique-ids non-unique-ids))))
