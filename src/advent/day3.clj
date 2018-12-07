@@ -41,5 +41,37 @@
 ; ........
 ; The four square inches marked with X are claimed by both 1 and 2. (Claim 3, while adjacent to the others, does not overlap either of them.)
 
-; If the Elves all proceed with their own plans, none of them will have enough fabric. How many square inches of fabric are within two or more claims?        
+; If the Elves all proceed with their own plans, none of them will have enough fabric. How many square inches of fabric are within two or more claims?
 
+(defrecord Claim [id x y x-len y-len])
+
+(defn string-to-claim
+  [s]
+  (->> s
+       (re-find #"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")
+       rest
+       (map rh/to-int)
+       (apply ->Claim)))
+
+;; Each point is a key into the map.
+;; Each map value is an array of Claim id's that include the point.
+(defn update-point
+  [m point id]
+  (update m point (fn [current] (if (nil? current) [id] (conj current id)))))
+
+;; Generate all points the Claim covers, and add them to the map.
+(defn map-claim
+  [m c]
+  (prn c)
+  (let [xs (range (:x c) (+ (:x c) (:x-len c)))
+        ys (range (:y c) (+ (:y c) (:y-len c)))
+        points (for [x xs y ys] [x y])]
+    (reduce #(update-point %1 %2 (:id c)) m points)))
+
+(defn inches-of-fabric
+  []
+  (let [lines (rh/read-lines "data/day3.txt")
+        claims (map string-to-claim lines)]
+    (reduce map-claim {} claims)
+    ;(println "here")
+    ))
