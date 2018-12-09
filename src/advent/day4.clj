@@ -70,6 +70,9 @@
 
 (defrecord Timestamp [id date hh mm event])
 
+;; We pass an id in, and get an id back.
+;; This lets make-timestamp handle the id breaks.
+;; Example data block:
 ;; [1518-11-01 00:00] Guard #10 begins shift
 ;; [1518-11-01 00:05] falls asleep
 ;; [1518-11-01 00:25] wakes up
@@ -79,7 +82,7 @@
         id (if-let [v (re-find #"(\d+)" event)]
              (last v)
              id)]
-    [id (->Timestamp id date hh mm event)]))
+    [id (->Timestamp id date (rh/to-int hh) (rh/to-int mm) event)]))
 
 (defn load-timestamps
   []
@@ -88,8 +91,6 @@
       (if (empty? lines)
         timestamps
         (let [nxt-line (first lines)
-              ;; We pass an id in, and get an id back.
-              ;; This lets make-timestamp handle the id breaks.
               [id nxt-timestamp] (make-timestamp id nxt-line)
               timestamps (conj timestamps nxt-timestamp)]
           (recur (rest lines) id timestamps))))))
