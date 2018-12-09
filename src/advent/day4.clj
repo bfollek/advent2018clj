@@ -70,33 +70,29 @@
 
 (defrecord Timestamp [id date hh mm event])
 
-(defn flds->timestamp
-  [flds]
-  (let [[date hh mm event] flds]
-    (map->Timestamp
-     {:date date
-      :hh (rh/to-int hh)
-      :mm (rh/to-int mm)
-      :event event})))
-
-(defn string->timestamp
-  [s]
-  (->> s
-       ;; [1518-11-01 00:00] Guard #10 begins shift
-       ;; [1518-11-01 00:05] falls asleep
-       ;; [1518-11-01 00:25] wakes up
-       (re-find #"\[(.*)\s(\d\d):(\d\d)\]\s(.*)")
-       rest
-       (flds->timestamp)))
-
-(defn lines->timestamps
-  [lines]
-  (map string->timestamp lines))
+;; [1518-11-01 00:00] Guard #10 begins shift
+;; [1518-11-01 00:05] falls asleep
+;; [1518-11-01 00:25] wakes up
+(defn make-timestamp
+  [id line]
+  (let [[date hh mm event]  (rest (re-find #"\[(.*)\s(\d\d):(\d\d)\]\s(.*)" line))
+        id (if-let [v (re-find #"(\d+)" event)]
+             (last v)
+             id)]
+    [id (->Timestamp id date hh mm event)]))
 
 (defn read-timestamps
   []
   (let [lines (sort (rh/read-lines "data/day4.txt"))]
-    (lines->timestamps lines)))
+    (loop [lines lines id nil tss []]
+      (if (empty? lines)
+        tss
+        (let [nxt-line (first lines)
+              ;; We pass an id in, and get an id back.
+              ;; This lets make-timestamp handle the id breaks.
+              [id nxt-ts] (make-timestamp id nxt-line)
+              tss (conj tss nxt-ts)]
+          (recur (rest lines) id tss))))))
 
 (defn strategy-1
   []
