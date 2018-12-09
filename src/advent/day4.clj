@@ -81,19 +81,19 @@
              id)]
     [id (->Timestamp id date hh mm event)]))
 
-(defn read-timestamps
+(defn load-timestamps
   []
   (let [lines (sort (rh/read-lines "data/day4.txt"))]
-    (loop [lines lines id nil tss []]
+    (loop [lines lines id nil timestamps []]
       (if (empty? lines)
-        tss
+        timestamps
         (let [nxt-line (first lines)
               ;; We pass an id in, and get an id back.
               ;; This lets make-timestamp handle the id breaks.
-              [id nxt-ts] (make-timestamp id nxt-line)
-              tss (conj tss nxt-ts)]
-          (recur (rest lines) id tss))))))
+              [id nxt-timestamp] (make-timestamp id nxt-line)
+              timestamps (conj timestamps nxt-timestamp)]
+          (recur (rest lines) id timestamps))))))
 
 (defn strategy-1
   []
-  (read-timestamps))
+  (load-timestamps))
