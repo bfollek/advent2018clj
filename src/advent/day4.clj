@@ -66,26 +66,52 @@
 ; [1 2 3]
 ; advent.day3=> (update-in m [:foo 2] inc)
 
-;;(defrecord Timestamp [id date hh mm event])
-
-;; We pass an id in, and get an id back.
-;; This lets make-timestamp handle the id breaks.
 ;; Example data block:
 ;; [1518-11-01 00:00] Guard #10 begins shift
 ;; [1518-11-01 00:05] falls asleep
 ;; [1518-11-01 00:25] wakes up
-(defn make-timestamp
-  [id line]
-  (let [[date hh mm event]  (rest (re-find #"\[(.*)\s(\d\d):(\d\d)\]\s(.*)" line))
-        id (if-let [v (re-find #"(\d+)" event)]
-             (last v)
-             id)]
-    [id (->Timestamp id date (rh/to-int hh) (rh/to-int mm) event)]))
+
+(defrecord Parsed [id start-time])
+
+"Load timestamp strings into a map. Each map key is a guard id.
+   Each map value is a vector of 60 ints, an hour of minutes. Count
+   how many times the guard is asleep at each of those minutes."
+
+;; Pass Parsed record in and get it back out, to accumulate results.
+(defn parse-timestamp
+  [m timestamp parsed]
+  (let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))
+        falls-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))
+        wakes-up (second (re-find #":(\d+)\] wakes up" timestamp))]
+    (cond
+      id (println "id" id)
+      falls-asleep (println "falls-asleep" falls-asleep)
+      wakes-up (println "wakes-up" wakes-up))))
+; TODO convert rh/to-int
+
+  ; cond regex - see ruby code
+; (cond
+; (re-find #"/Guard #(\d+) begins shift/")
+; (let
+;   case line
+;       when /Guard #(\d+) begins shift/
+;         current_id = $1
+;         guards[current_id] ||= Guard.new(current_id) # Create new Guard if necessary
+;       when /:(\d+)\] falls asleep/
+;         start_minute = $1
+;       when /:(\d+)\] wakes up/
+;         guards[current_id].add_sleep start_minute, $1
+;       end
+;     end
+;   )
 
 (defn load-timestamps
   []
-  (let [lines (sort (rh/read-lines "data/day4.txt"))]
-    (reduce ...)))
+  (loop [lines (sort (rh/read-lines "data/day4.txt")) m {} parsed nil]
+    (if (empty? lines)
+      m
+      (let [[m parsed] (parse-timestamp m (first lines) parsed)]
+        (recur (rest lines) m parsed)))))
 
 (defn strategy-1
   []
