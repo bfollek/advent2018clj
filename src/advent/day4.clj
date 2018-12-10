@@ -1,7 +1,5 @@
 (ns advent.day4
-  (:require [clojure.string :as str]
-            [clojure.set :as set]
-            [rabbithole.core :as rh]))
+  (:require [rabbithole.core :as rh]))
 
 ; --- Day 4: Repose Record ---
 ; You've sneaked into another supply closet - this time, it's across from the prototype suit manufacturing lab. You need to sneak inside and fix the issues with the suit, but there's a guard stationed outside the lab, so this is as close as you can safely get.
@@ -68,7 +66,7 @@
 ; [1 2 3]
 ; advent.day3=> (update-in m [:foo 2] inc)
 
-(defrecord Timestamp [id date hh mm event])
+;;(defrecord Timestamp [id date hh mm event])
 
 ;; We pass an id in, and get an id back.
 ;; This lets make-timestamp handle the id breaks.
@@ -87,13 +85,7 @@
 (defn load-timestamps
   []
   (let [lines (sort (rh/read-lines "data/day4.txt"))]
-    (loop [lines lines id nil timestamps []]
-      (if (empty? lines)
-        timestamps
-        (let [nxt-line (first lines)
-              [id nxt-timestamp] (make-timestamp id nxt-line)
-              timestamps (conj timestamps nxt-timestamp)]
-          (recur (rest lines) id timestamps))))))
+    (reduce ...)))
 
 (defn strategy-1
   []
