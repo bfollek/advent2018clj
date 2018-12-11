@@ -84,19 +84,26 @@
     (assoc m id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
 
 (defn nap-complete
-  [m parsed]
-  m)
+  "For each minute the guard was asleep, increment the counter.
 
-;; Pass Parsed record in and get it back out, to accumulate results.
+  Args: the id->minutes map and the complete parsed record.
+  Returns: the updated id->minutes map."
+  [m parsed]
+  (reduce #(update-in %1 [(:id parsed) %2] inc) m (range (:fell-asleep parsed) (:woke-up parsed))))
+
 (defn parse-timestamp
-  [m timestamp parsed]
-  (println timestamp)
+  "Args: the id->minutes map, the current parsed record, and the current timestamp string.
+  Returns: the updated id->minutes map and the updated parsed record. The parsed record carries
+  state, e.g. the current guard id."
+  [m parsed timestamp]
   (if-let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))]
-    [(found-id m id) (map->Parsed {:id (rh/to-int id)})]
+    (let [id (rh/to-int id)]
+      [(found-id m id) (map->Parsed {:id id})])
     (if-let [fell-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))]
       [m (assoc parsed :fell-asleep (rh/to-int fell-asleep))]
       (if-let [woke-up (second (re-find #":(\d+)\] wakes up" timestamp))]
-        [(nap-complete m (assoc parsed :woke-up (rh/to-int woke-up))) nil]
+        ;; One guard may be followed by multiple naps, so the parsed record preserves the guard id.
+        [(nap-complete m (assoc parsed :woke-up (rh/to-int woke-up))) (assoc parsed :fell-asleep nil :woke-up nil)]
         (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
@@ -104,7 +111,7 @@
   (loop [lines (sort (rh/read-lines "data/day4.txt")) m {} parsed nil]
     (if (empty? lines)
       m
-      (let [[m parsed] (parse-timestamp m (first lines) parsed)]
+      (let [[m parsed] (parse-timestamp m parsed (first lines))]
         (recur (rest lines) m parsed)))))
 
 (defn strategy-1
