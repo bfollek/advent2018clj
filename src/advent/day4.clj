@@ -102,6 +102,31 @@
       (let [[ids->minutes parsed] (parse-timestamp ids->minutes parsed (first lines))]
         (recur (rest lines) ids->minutes parsed)))))
 
+(defn most-naps-total
+  "Args: the ids->minutes map.
+
+  Returns: the ids->minutes entry that naps the longest, in total."
+  [ids->minutes]
+  ;; https://clojuredocs.org/clojure.core/max-key
+  (apply max-key #(reduce + (val %)) ids->minutes))
+
+(defn most-naps-day
+  "Args: a single entry from the ids->minutes map.
+
+  Returns: the index and value of the minute in the entry that has the most napping.
+
+  This code makes two passes over the same array, which is not optimal. But it's a small array."
+  [ids->minutes-entry]
+;   advent.day4=> (def v [1 2 99 3 4 5])
+; #'advent.day4/v
+; advent.day4=> (apply max v)
+; 99
+; advent.day4=> (.indexOf v 99)
+; 2
+  [12, 7])
+
 (defn strategy-1
   []
-  (load-timestamps))
+  (let [e  (-> (load-timestamps)
+               most-naps-total)]
+    (key e)))
