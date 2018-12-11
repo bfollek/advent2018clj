@@ -71,39 +71,33 @@
 ;; [1518-11-01 00:05] falls asleep
 ;; [1518-11-01 00:25] wakes up
 
-(defrecord Parsed [id start-time])
+(defrecord Parsed [id fell-asleep woke-up])
 
-"Load timestamp strings into a map. Each map key is a guard id.
-   Each map value is a vector of 60 ints, an hour of minutes. Count
-   how many times the guard is asleep at each of those minutes."
+(defn found-id
+  "Load guard ids into a map. Each map key is an id.
+  Each map value is a vector of 60 ints, an hour of minutes.
+  We use them to count how many times the guard is asleep at
+  each minute."
+  [m id]
+  (if (m id)
+    m ; id already in map
+    (assoc m id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
+
+(defn nap-complete
+  [m parsed]
+  m)
 
 ;; Pass Parsed record in and get it back out, to accumulate results.
 (defn parse-timestamp
   [m timestamp parsed]
-  (let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))
-        falls-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))
-        wakes-up (second (re-find #":(\d+)\] wakes up" timestamp))]
-    (cond
-      id (println "id" id)
-      falls-asleep (println "falls-asleep" falls-asleep)
-      wakes-up (println "wakes-up" wakes-up))))
-; TODO convert rh/to-int
-
-  ; cond regex - see ruby code
-; (cond
-; (re-find #"/Guard #(\d+) begins shift/")
-; (let
-;   case line
-;       when /Guard #(\d+) begins shift/
-;         current_id = $1
-;         guards[current_id] ||= Guard.new(current_id) # Create new Guard if necessary
-;       when /:(\d+)\] falls asleep/
-;         start_minute = $1
-;       when /:(\d+)\] wakes up/
-;         guards[current_id].add_sleep start_minute, $1
-;       end
-;     end
-;   )
+  (println timestamp)
+  (if-let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))]
+    [(found-id m id) (map->Parsed {:id (rh/to-int id)})]
+    (if-let [fell-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))]
+      [m (assoc parsed :fell-asleep (rh/to-int fell-asleep))]
+      (if-let [woke-up (second (re-find #":(\d+)\] wakes up" timestamp))]
+        [(nap-complete m (assoc parsed :woke-up (rh/to-int woke-up))) nil]
+        (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
   []
