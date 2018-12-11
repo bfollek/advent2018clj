@@ -74,25 +74,23 @@
 (defrecord Parsed [id fell-asleep woke-up])
 
 (defn found-id
-  "Load guard ids into a map. Each map key is an id.
-  Each map value is a vector of 60 ints, an hour of minutes.
-  We use them to count how many times the guard is asleep at
-  each minute."
-  [m id]
-  (if (m id)
-    m ; id already in map
-    (assoc m id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
+  [ids->minutes id]
+  (if (ids->minutes id)
+    ids->minutes ; id already in map
+    (assoc ids->minutes id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
 
 (defn nap-complete
   "For each minute the guard was asleep, increment the counter.
 
   Args: the id->minutes map and the complete parsed record.
+
   Returns: the updated id->minutes map."
   [m parsed]
   (reduce #(update-in %1 [(:id parsed) %2] inc) m (range (:fell-asleep parsed) (:woke-up parsed))))
 
 (defn parse-timestamp
   "Args: the id->minutes map, the current parsed record, and the current timestamp string.
+
   Returns: the updated id->minutes map and the updated parsed record. The parsed record carries
   state, e.g. the current guard id."
   [m parsed timestamp]
@@ -107,12 +105,20 @@
         (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
+  "Load guard ids into a map. Each map key is an id.
+  Each map value is a vector of 60 ints, an hour of minutes.
+  We use them to count how many times the guard is asleep at
+  each minute.
+
+  Args: none.
+
+  Returns: the ids->minutes map."
   []
-  (loop [lines (sort (rh/read-lines "data/day4.txt")) m {} parsed nil]
+  (loop [lines (sort (rh/read-lines "data/day4.txt")) ids->minutes {} parsed nil]
     (if (empty? lines)
-      m
-      (let [[m parsed] (parse-timestamp m parsed (first lines))]
-        (recur (rest lines) m parsed)))))
+      ids->minutes
+      (let [[ids->minutes parsed] (parse-timestamp ids->minutes parsed (first lines))]
+        (recur (rest lines) ids->minutes parsed)))))
 
 (defn strategy-1
   []
