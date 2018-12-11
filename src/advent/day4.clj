@@ -53,24 +53,6 @@
 
 ;; ########################################
 
-;; Guard IDs are unpredictable, so each will be a key in a map. The 60 minutes are predictable, so they'll be a vector,
-;; and the vector will the map value that the key points to.
-
-; (into [] (take 60 (repeat 0)))
-
-; advent.day3=> (def v [1 2 3])
-; #'advent.day3/v
-; advent.day3=> (def m {:foo v})
-; #'advent.day3/m
-; advent.day3=> (:foo m)
-; [1 2 3]
-; advent.day3=> (update-in m [:foo 2] inc)
-
-;; Example data block:
-;; [1518-11-01 00:00] Guard #10 begins shift
-;; [1518-11-01 00:05] falls asleep
-;; [1518-11-01 00:25] wakes up
-
 (defrecord Parsed [id fell-asleep woke-up])
 
 (defn found-id
@@ -79,36 +61,36 @@
     ids->minutes ; id already in map
     (assoc ids->minutes id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
 
-(defn nap-complete
+(defn nap-over
   "For each minute the guard was asleep, increment the counter.
 
-  Args: the id->minutes map and the complete parsed record.
+  Args: the ids->minutes map and the complete parsed record.
 
-  Returns: the updated id->minutes map."
-  [m parsed]
-  (reduce #(update-in %1 [(:id parsed) %2] inc) m (range (:fell-asleep parsed) (:woke-up parsed))))
+  Returns: the updated ids->minutes map."
+  [ids->minutes parsed]
+  (reduce #(update-in %1 [(:id parsed) %2] inc) ids->minutes (range (:fell-asleep parsed) (:woke-up parsed))))
 
 (defn parse-timestamp
-  "Args: the id->minutes map, the current parsed record, and the current timestamp string.
+  "Args: the ids->minutes map, the current parsed record, and the current timestamp string.
 
-  Returns: the updated id->minutes map and the updated parsed record. The parsed record carries
+  Returns: the updated ids->minutes map and the updated parsed record. The parsed record carries
   state, e.g. the current guard id."
-  [m parsed timestamp]
+  [ids->minutes parsed timestamp]
   (if-let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))]
     (let [id (rh/to-int id)]
-      [(found-id m id) (map->Parsed {:id id})])
+      [(found-id ids->minutes id) (map->Parsed {:id id})])
     (if-let [fell-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))]
-      [m (assoc parsed :fell-asleep (rh/to-int fell-asleep))]
+      [ids->minutes (assoc parsed :fell-asleep (rh/to-int fell-asleep))]
       (if-let [woke-up (second (re-find #":(\d+)\] wakes up" timestamp))]
-        ;; One guard may be followed by multiple naps, so the parsed record preserves the guard id.
-        [(nap-complete m (assoc parsed :woke-up (rh/to-int woke-up))) (assoc parsed :fell-asleep nil :woke-up nil)]
+        ;; One guard may take multiple naps on a shift, so the parsed record preserves the guard id.
+        [(nap-over ids->minutes (assoc parsed :woke-up (rh/to-int woke-up))) (assoc parsed :fell-asleep nil :woke-up nil)]
         (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
-  "Load guard ids into a map. Each map key is an id.
-  Each map value is a vector of 60 ints, an hour of minutes.
-  We use them to count how many times the guard is asleep at
-  each minute.
+  "Guard ids are unpredictable, so store them in a map. Each map key is a guard id.
+  The 60 minutes are predictable, so store them in a vector as 60 ints, an hour of minutes.
+  Each map value is a minutes vector. We use the vector to count how many times the guard
+  is asleep at each minute of the shift.
 
   Args: none.
 
