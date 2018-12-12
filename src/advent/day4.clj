@@ -84,14 +84,15 @@
   It stores the data in the `parsed` record. It updates the `id->minutes`
   map as necessary. It returns the `id->minutes` map and the `parsed` record."
   [ids->minutes parsed timestamp]
-  (if-let [id (rh/to-int (second (re-find #"Guard #(\d+) begins shift" timestamp)))]
-    [(found-id ids->minutes id) (map->Parsed {:id id})]
-    (if-let [fell-asleep (rh/to-int (second (re-find #":(\d+)\] falls asleep" timestamp)))]
-      [ids->minutes (assoc parsed :fell-asleep fell-asleep)]
-      (if-let [woke-up (rh/to-int (second (re-find #":(\d+)\] wakes up" timestamp)))]
-        ;; One guard may take multiple naps on a shift, so the parsed record preserves the guard id.
-        [(nap-over ids->minutes (assoc parsed :woke-up woke-up)) (assoc parsed :fell-asleep nil :woke-up nil)]
-        (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
+  (let [fix-field (comp rh/to-int second)]
+    (if-let [id (fix-field (re-find #"Guard #(\d+) begins shift" timestamp))]
+      [(found-id ids->minutes id) (map->Parsed {:id id})]
+      (if-let [fell-asleep (fix-field (re-find #":(\d+)\] falls asleep" timestamp))]
+        [ids->minutes (assoc parsed :fell-asleep fell-asleep)]
+        (if-let [woke-up (fix-field (re-find #":(\d+)\] wakes up" timestamp))]
+          ;; One guard may take multiple naps on a shift, so the parsed record preserves the guard id.
+          [(nap-over ids->minutes (assoc parsed :woke-up woke-up)) (assoc parsed :fell-asleep nil :woke-up nil)]
+          (throw (Exception. (str "Unexpected timestamp:" timestamp))))))))
 
 (defn load-timestamps
   "Load-timestamps loads the timestamp data from a text file.
