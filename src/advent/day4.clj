@@ -55,11 +55,16 @@
 
 (defrecord Parsed [id fell-asleep woke-up])
 
+(defn new-minute-counters
+  "New-minute-counters returns a vector of 60 zeros, one for each minute."
+  []
+  (into [] (take 60 (repeat 0))))
+
 (defn found-id
   [ids->minutes id]
   (if (ids->minutes id)
     ids->minutes ; id already in map
-    (assoc ids->minutes id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
+    (assoc ids->minutes id (new-minute-counters)))) ; Add id to map, and init minute counters
 
 (defn nap-over
   "Nap-over increments the minute counter for each minute the guard was asleep.
@@ -96,19 +101,16 @@
         (recur (rest lines) ids->minutes parsed)))))
 
 (defn most-naps-total
-  "Args: the ids->minutes map.
-
-  Returns: the ids->minutes entry that naps the longest, in total."
+  "Most-naps-total finds the guard who spent the most minutes napping, total.
+  It rReturns the `ids->minutes` entry for this guard."
   [ids->minutes]
   ;; https://clojuredocs.org/clojure.core/max-key
   (apply max-key #(reduce + (val %)) ids->minutes))
 
-(defn most-naps-day
-  "Args: a single entry from the ids->minutes map.
-
-  Returns: the value and index of the minute that has the most napping.
-
-  Traverses the minutes vector twice, but that's a trivial performance hit with a short array."
+(defn most-naps-minute
+  "Most-naps-minute finds the minute that a given guard did the most napping.
+  It returns the number of minutes and the index in the minutes vector.
+  It reads the vector twice, but it's a short vector."
   [ids->minutes-entry]
   (let [minutes (val ids->minutes-entry)
         indexed (rh/zip-up minutes (range 0 (count minutes)))]
@@ -118,4 +120,4 @@
   []
   (let [entry  (-> (load-timestamps)
                    most-naps-total)]
-    (* (key entry) (second (most-naps-day entry)))))
+    (* (key entry) (second (most-naps-minute entry)))))
