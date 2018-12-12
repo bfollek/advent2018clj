@@ -51,6 +51,13 @@
 
 ; What is the ID of the guard you chose multiplied by the minute you chose? (In the above example, the answer would be 10 * 24 = 240.)
 
+; # --- Part Two ---
+; # Strategy 2: Of all guards, which guard is most frequently asleep on the same minute?
+
+; # In the example above, Guard #99 spent minute 45 asleep more than any other guard or minute - three times in total. (In all other cases, any guard spent any minute asleep at most twice.)
+
+; # What is the ID of the guard you chose multiplied by the minute you chose? (In the above example, the answer would be 99 * 45 = 4455.)
+
 ;; ########################################
 
 (defrecord Parsed [id fell-asleep woke-up])
@@ -77,14 +84,13 @@
   It stores the data in the `parsed` record. It updates the `id->minutes`
   map as necessary. It returns the `id->minutes` map and the `parsed` record."
   [ids->minutes parsed timestamp]
-  (if-let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))]
-    (let [id (rh/to-int id)]
-      [(found-id ids->minutes id) (map->Parsed {:id id})])
-    (if-let [fell-asleep (second (re-find #":(\d+)\] falls asleep" timestamp))]
-      [ids->minutes (assoc parsed :fell-asleep (rh/to-int fell-asleep))]
-      (if-let [woke-up (second (re-find #":(\d+)\] wakes up" timestamp))]
+  (if-let [id (rh/to-int (second (re-find #"Guard #(\d+) begins shift" timestamp)))]
+    [(found-id ids->minutes id) (map->Parsed {:id id})]
+    (if-let [fell-asleep (rh/to-int (second (re-find #":(\d+)\] falls asleep" timestamp)))]
+      [ids->minutes (assoc parsed :fell-asleep fell-asleep)]
+      (if-let [woke-up (rh/to-int (second (re-find #":(\d+)\] wakes up" timestamp)))]
         ;; One guard may take multiple naps on a shift, so the parsed record preserves the guard id.
-        [(nap-over ids->minutes (assoc parsed :woke-up (rh/to-int woke-up))) (assoc parsed :fell-asleep nil :woke-up nil)]
+        [(nap-over ids->minutes (assoc parsed :woke-up woke-up)) (assoc parsed :fell-asleep nil :woke-up nil)]
         (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
