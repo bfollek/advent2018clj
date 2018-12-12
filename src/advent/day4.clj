@@ -62,19 +62,15 @@
     (assoc ids->minutes id (into [] (take 60 (repeat 0)))))) ; Add id to map, and init minute counters
 
 (defn nap-over
-  "For each minute the guard was asleep, increment the counter.
-
-  Args: the ids->minutes map and the complete parsed record.
-
-  Returns: the updated ids->minutes map."
+  "Nap-over increments the minute counter for each minute the guard was asleep.
+  It returns the updated `ids->minutes` map."
   [ids->minutes parsed]
   (reduce #(update-in %1 [(:id parsed) %2] inc) ids->minutes (range (:fell-asleep parsed) (:woke-up parsed))))
 
 (defn parse-timestamp
-  "Args: the ids->minutes map, the current parsed record, and the current timestamp string.
-
-  Returns: the updated ids->minutes map and the updated parsed record. The parsed record carries
-  state, e.g. the current guard id."
+  "Parse-timestamp parses out the data from the `timestamp` string.
+  It stores the data in the `parsed` record. It updates the `id->minutes`
+  map as necessary. It returns the `id->minutes` map and the `parsed` record."
   [ids->minutes parsed timestamp]
   (if-let [id (second (re-find #"Guard #(\d+) begins shift" timestamp))]
     (let [id (rh/to-int id)]
@@ -87,14 +83,11 @@
         (throw (Exception. (str "Unexpected timestamp:" timestamp)))))))
 
 (defn load-timestamps
-  "Guard ids are unpredictable, so store them in a map. Each map key is a guard id.
-  The 60 minutes are predictable, so store them in a vector as 60 ints, an hour of minutes.
-  Each map value is a minutes vector. We use the vector to count how many times the guard
-  is asleep at each minute of the shift.
-
-  Args: none.
-
-  Returns: the ids->minutes map."
+  "Load-timestamps loads the timestamp data from a text file.
+  It stores the data in the `ids->minutes` map. Each map key is a guard id.
+  Each map value is a vector of 60 ints. The vector counts how many times
+  the guard was asleep at each minute of the shift. The function returns
+  the `ids->minutes` map."
   []
   (loop [lines (sort (rh/read-lines "data/day4.txt")) ids->minutes {} parsed nil]
     (if (empty? lines)
@@ -113,20 +106,16 @@
 (defn most-naps-day
   "Args: a single entry from the ids->minutes map.
 
-  Returns: the index and value of the minute in the entry that has the most napping.
+  Returns: the value and index of the minute that has the most napping.
 
-  This code makes two passes over the same array, which is not optimal. But it's a small array."
+  Traverses the minutes vector twice, but that's a trivial performance hit with a short array."
   [ids->minutes-entry]
-;   advent.day4=> (def v [1 2 99 3 4 5])
-; #'advent.day4/v
-; advent.day4=> (apply max v)
-; 99
-; advent.day4=> (.indexOf v 99)
-; 2
-  [12, 7])
+  (let [minutes (val ids->minutes-entry)
+        indexed (rh/zip-up minutes (range 0 (count minutes)))]
+    (apply max-key first indexed)))
 
 (defn strategy-1
   []
-  (let [e  (-> (load-timestamps)
-               most-naps-total)]
-    (key e)))
+  (let [entry  (-> (load-timestamps)
+                   most-naps-total)]
+    (* (key entry) (second (most-naps-day entry)))))
