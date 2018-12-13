@@ -128,3 +128,12 @@
   (let [entry  (-> (load-timestamps)
                    most-naps-total)]
     (* (key entry) (second (most-naps-minute entry)))))
+
+(defn strategy-2
+  []
+  (let [ids->minutes (load-timestamps)
+        ;; most-naps-same-day is a seq of vectors. Each vector is
+        ;; # of minutes, index of minutes, id of guard
+        most-naps-same-day (map #(conj (most-naps-minute %) (key %)) ids->minutes)
+        most (apply max-key first most-naps-same-day)]
+    (* (second most) (last most))))
