@@ -42,28 +42,46 @@
 
 (defn reaction?
   [c1 c2]
-  ;; true if characters differ only in case
-  (and (not= c1 c2) (= (Character/toLowerCase c1) (Character/toLowerCase c2))))
+  ;; true if characters differ only in case.
+  (and (not= c1 c2) (= (rh/to-lower c1) (rh/to-lower c2))))
+
+(defn skip-char?
+  [c skip]
+  (= (rh/to-lower c) skip))
 
 (defn shrink
-  [s]
-  (reduce (fn [v c] (if (reaction? (last v) c)
-                      ;; Skip c and drop the last char of v.
-                      ;; Keep v a vector so that conj works right.
-                      ;; First I tried (butlast) wrapped in (vec)
-                      ;; or (into []). They were about the same speed:
-                      ;; more than twice as slow as (subvec).
-                      (subvec v 0 (dec (count v)))
-                      (conj v c)))
-          [(first s)] (rest s)))
-
+  ([s]
+   (shrink s nil))
+  ([s skip]
+   (let [skip (rh/to-lower skip)
+         ;; Drop any leading skip chars
+         s (drop-while #(skip-char? % skip) s)]
+     (reduce (fn [v c] (cond
+                         (skip-char? c skip) v
+                         ;; Skip c. v doesn't change.
+                         (and (seq v) (reaction? (last v) c)) (subvec v 0 (dec (count v)))
+                         ;; Skip c and drop the last char of v.
+                         ;; Keep v a vector so that conj works right.
+                         ;; First I tried (butlast) wrapped in (vec)
+                         ;; or (into []). They were about the same speed:
+                         ;; more than twice as slow as (subvec).
+                         ;; The (seq v) check makes sure v isn't empty. This comes up
+                         ;; if the polymer starts with a reactive unit pair. It's removed,
+                         ;; and (last v) is nil the next time through, and (reaction?)
+                         ;; blows up if we call it.
+                         :else (conj v c)))
+                         ;; Keep c
+             [(first s)] (rest s)))))
 
 (defn part1
-  []
-  (count (shrink (slurp "data/day5.txt"))))
+  [filename]
+  (count (shrink (slurp filename))))
 
-; part2
-; set gets unique chars
-; for each unique
-;   remove, shrink, count
-; who wins?
+(defn part2
+  [filename]
+  (let [s (slurp filename)
+        units (rh/char-range \a \z)]
+    (->> units
+         (map #(shrink s %))
+         (map count)
+         (apply min))))
