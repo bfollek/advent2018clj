@@ -50,7 +50,8 @@
    (shrink s nil))
   ([s skip]
    (let [skip (rh/to-lower skip)
-         skip-char? (fn [c] (= (rh/to-lower c) skip))
+         ;skip-char? (fn [c] (= (rh/to-lower c) skip))
+         skip-char? (partial (= skip (rh/to-lower)))
          ;; Drop any leading skip chars
          s (drop-while #(skip-char? %) s)]
      (reduce (fn [v c] (cond
