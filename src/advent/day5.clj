@@ -33,4 +33,12 @@
 (defn shrink
   []
   (let [s (slurp "data/day5.txt")]
-    (count (reduce (fn [v c] (if (reaction? (last v) c) (into [] (butlast v)) (conj v c))) [(first s)] (rest s)))))
+    (count (reduce (fn [v c] (if (reaction? (last v) c)
+                               ;; Skip c and drop the last char of v.
+                               ;; Keep v a vector so that conj works right.
+                               ;; First I tried (butlast) wrapped in (vec)
+                               ;; or (into []). They were about the same speed:
+                               ;; more than twice as slow as (subvec).
+                               (subvec v 0 (dec (count v)))
+                               (conj v c)))
+                   [(first s)] (rest s)))))
