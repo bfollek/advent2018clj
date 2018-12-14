@@ -45,19 +45,16 @@
   ;; true if characters differ only in case.
   (and (not= c1 c2) (= (rh/to-lower c1) (rh/to-lower c2))))
 
-(defn skip-char?
-  [c skip]
-  (= (rh/to-lower c) skip))
-
 (defn shrink
   ([s]
    (shrink s nil))
   ([s skip]
    (let [skip (rh/to-lower skip)
+         skip-char? (fn [c] (= (rh/to-lower c) skip))
          ;; Drop any leading skip chars
-         s (drop-while #(skip-char? % skip) s)]
+         s (drop-while #(skip-char? %) s)]
      (reduce (fn [v c] (cond
-                         (skip-char? c skip) v
+                         (skip-char? c) v
                          ;; Skip c. v doesn't change.
                          (and (seq v) (reaction? (last v) c)) (subvec v 0 (dec (count v)))
                          ;; Skip c and drop the last char of v.
