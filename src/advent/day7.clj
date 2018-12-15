@@ -41,13 +41,22 @@
 ; In what order should the steps in your instructions be completed?
 
 (defn found-step
+  "Found-step maintains the `steps` map by adding keys and values as necessary.
+   Each key is a step name, and each value is a set of step names that the
+   key step is waiting for. We use a set because it automatically removes
+   duplicates."
   ([steps name]
    (found-step steps name nil))
   ([steps name waiting-for]
-   (let [steps (if-not (steps name) (assoc steps name #{}) steps)]
-     (if waiting-for
-       (update steps name #(conj % waiting-for))
-       steps))))
+   (cond
+     ;; Entry exists, waiting-for has a value - add it
+     (and (steps name) waiting-for) (update steps name #(conj % waiting-for))
+     ;; No entry, waiting-for has a value - Create entry with waiting-for value
+     (and (not (steps name)) waiting-for) (assoc steps name #{waiting-for})
+     ;; No entry, no waiting-for value - Create entry, no waiting-for value
+     (and (not (steps name)) (not waiting-for)) (assoc steps name #{})
+     ;; Else return steps we started with - nothing changed
+     :else steps)))
 
 (defn parse-step
   [steps s]
