@@ -82,9 +82,10 @@
   ;; Remove the step we finished...
   (let [steps->waiting-for (dissoc steps->waiting-for finished-step-name)]
     ;; And remove it from the waiting-for coll in any other steps
-    ;; (into {} (for [[k v] steps->waiting-for] [k (remove (partial = finished-step-name) v)]))))
-    (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-step-name) waiting-for)))
-            steps->waiting-for (keys steps->waiting-for))))
+    (into {} (for [[k v] steps->waiting-for] [k (remove (partial = finished-step-name) v)]))))
+    ;; This works, but seems considerably harder to read than the (for) version
+    ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-step-name) waiting-for)))
+    ;;           steps->waiting-for (keys steps->waiting-for)))
 
 (defn part1
   [filename]
