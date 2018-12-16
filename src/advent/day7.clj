@@ -64,26 +64,23 @@
         (found-step step1)
         (found-step step2 step1))))
 
-(defn load-steps
-  [filename]
-  (reduce parse-step {} (rh/read-lines filename)))
-
 (defn find-next
-[steps]
+  [steps]
 ;looks for entries with empty sets, sorts names (keys), and returns the first
-}
+  )
 
 (defn no-longer-waiting-for
-[steps done]
+  [steps done]
 ;goes through values and removes name from waiting-for
-)
+  )
 
 (defn part1
   [filename]
-  (let [steps (load-steps filename)]
-    (loop [ordered-steps []]
-      (if (= (count (ordered-steps)) (count (steps)))
-        (apply str ordered-steps) ; Done
-        (let [next-step (find-next steps)]
-          (no-longer-waiting-for steps next-step)
-          (recur (conj ordered-steps next-step)))))))
+  (let [steps (reduce parse-step {} (rh/read-lines filename))]
+    ; (loop [ordered-steps []]
+    ;   (if (= (count (ordered-steps)) (count (steps)))
+    ;     (apply str ordered-steps) ; Done
+    ;     (let [next-step (find-next steps)]
+    ;       (no-longer-waiting-for steps next-step)
+    ;       (recur (conj ordered-steps next-step)))))
+    steps))
