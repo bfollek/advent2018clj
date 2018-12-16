@@ -41,51 +41,57 @@
 ; In what order should the steps in your instructions be completed?
 
 (defn found-step
-  "Found-step maintains the `steps` map by adding keys and values as necessary.
-   Each key is a step name, and each value is a set of step names that the
-   key step is waiting for. We use a set because it automatically removes
-   duplicates."
-  ([steps name]
-   (found-step steps name nil))
-  ([steps name waiting-for]
+  "Found-step maintains the `steps->waiting-for` map by adding keys and values as necessary.
+   Each key is a step name, and each value is a coll of step names that the
+   key step is waiting for. Dups in the waiting-for coll are harmless. When
+   a step finishes, we'll remove all occurences of the name."
+  ([steps->waiting-for name]
+   (found-step steps->waiting-for name nil))
+  ([steps->waiting-for name waiting-for]
    (cond
      ;; Entry exists, waiting-for has a value - add it
-     (and (steps name) waiting-for) (update steps name #(conj % waiting-for))
+     (and (steps->waiting-for name) waiting-for) (update steps->waiting-for name #(conj % waiting-for))
      ;; No entry - create entry with/without waiting-for value
-     (not (steps name)) (assoc steps name (if waiting-for #{waiting-for} #{}))
-     ;; Else return steps we started with - nothing to change
-     :else steps)))
+     (not (steps->waiting-for name)) (assoc steps->waiting-for name (if waiting-for [waiting-for] []))
+     ;; Else return steps->waiting-for we started with - nothing to change
+     :else steps->waiting-for)))
 
 (defn parse-step
-  [steps s]
+  [steps->waiting-for s]
   (let [[_ step1 step2] (re-find #"Step\s+(\w)\s+must be finished before step\s+(\w)\s+can begin." s)]
     [step1 step2]
-    (-> steps
+    (-> steps->waiting-for
         (found-step step1)
         (found-step step2 step1))))
 
 (defn find-next
-  [steps]
-  (->> steps
+  [steps->waiting-for]
+  (->> steps->waiting-for
        (filter (comp empty? val))
        keys
        sort
        first))
 
-(defn did-step
-  [steps next-step]
-  (let [steps (dissoc steps next-step)]
-    (let [m (into {} (for [[k v] steps] [k (remove (partial = next-step) v)]))]
-      (println "m == " m)
-      m)))
+(defn update-step
+  [steps->waiting-for step-name finished-step-name]
+  (println "step-name:" step-name "finished-step-name:" finished-step-name)
+  (update steps->waiting-for step-name (remove (partial = finished-step-name) (steps->waiting-for step-name))))
+
+(defn finished-step
+  [steps->waiting-for finished-step-name]
+  ;; Remove the step we finished...
+  (let [steps->waiting-for (dissoc steps->waiting-for finished-step-name)]
+    ;; And remove it from the waiting-for coll in any other steps
+    ;; (into {} (for [[k v] steps->waiting-for] [k (remove (partial = finished-step-name) v)]))))
+    (reduce (fn [m k] (update m k (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
+            steps->waiting-for (keys steps->waiting-for))))
 
 (defn part1
   [filename]
-  (let [steps (reduce parse-step {} (rh/read-lines filename))]
-    (loop [steps steps ordered-steps []]
-      (if (empty? steps)
-        (apply str ordered-steps) ; Done
-        (let [next-step (find-next steps)]
-          (println "next step: " next-step)
-          (recur (did-step steps next-step)
-                 (conj ordered-steps next-step)))))))
+  (let [steps->waiting-for (reduce parse-step {} (rh/read-lines filename))]
+    (loop [steps->waiting-for steps->waiting-for ordered-step-names []]
+      (if (empty? steps->waiting-for)
+        (apply str ordered-step-names) ; Done
+        (let [next-step-name (find-next steps->waiting-for)]
+          (recur (finished-step steps->waiting-for next-step-name)
+                 (conj ordered-step-names next-step-name)))))))
