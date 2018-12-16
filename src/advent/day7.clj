@@ -74,66 +74,66 @@
 ; With 5 workers and the 60+ second step durations described above, how long will it take to complete all of the steps?
 
 (defn found-step
-  "Found-step maintains the `steps->waiting-for` map by adding keys and values as necessary.
+  "Found-step maintains the `steps` map by adding keys and values as necessary.
    Each key is a step name, and each value is a coll of step names that the
    key step is waiting for. Dups in the waiting-for coll are harmless. When
    a step finishes, we'll remove all occurences of the name."
-  ([steps->waiting-for name]
-   (found-step steps->waiting-for name nil))
-  ([steps->waiting-for name waiting-for]
+  ([steps name]
+   (found-step steps name nil))
+  ([steps name waiting-for]
    (cond
      ;; Entry exists, waiting-for has a value - add it
-     (and (steps->waiting-for name) waiting-for) (update steps->waiting-for name #(conj % waiting-for))
+     (and (steps name) waiting-for) (update steps name #(conj % waiting-for))
      ;; No entry - create entry with/without waiting-for value
-     (not (steps->waiting-for name)) (assoc steps->waiting-for name (if waiting-for [waiting-for] []))
-     ;; Else return steps->waiting-for we started with - nothing to change
-     :else steps->waiting-for)))
+     (not (steps name)) (assoc steps name (if waiting-for [waiting-for] []))
+     ;; Else return steps we started with - nothing to change
+     :else steps)))
 
 (defn parse-step
-  [steps->waiting-for s]
+  [steps s]
   (let [[_ step1 step2] (re-find #"Step\s+(\w)\s+must be finished before step\s+(\w)\s+can begin." s)]
     [step1 step2]
-    (-> steps->waiting-for
+    (-> steps
         (found-step step1)
         (found-step step2 step1))))
 
 (defn ready-to-run
-  [steps->waiting-for]
-  (->> steps->waiting-for
+  [steps]
+  (->> steps
        (filter (comp empty? val))
        keys))
 
 (defn find-next
-  [steps->waiting-for]
-  (->> steps->waiting-for
+  [steps]
+  (->> steps
        ready-to-run
        sort
        first))
 
 (defn update-waiting-for
-  [steps->waiting-for step-name finished-step-name]
-  (update steps->waiting-for step-name (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
+  [steps step-name finished-step-name]
+  (update steps step-name (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
 
 (defn finished-step
-  [steps->waiting-for finished-step-name]
+  [steps finished-step-name]
   ;; Remove the step we finished...
-  (let [steps->waiting-for (dissoc steps->waiting-for finished-step-name)]
+  (let [steps (dissoc steps finished-step-name)]
     ;; And remove it from the waiting-for coll in any other steps
-    (apply merge (for [[k v] steps->waiting-for] {k (remove (partial = finished-step-name) v)}))))
+    (apply merge (for [[k v] steps] {k (remove (partial = finished-step-name) v)}))))
     ;; Another (for) way
-    ;; (into {} (for [[k v] steps->waiting-for] [k (remove (partial = finished-step-name) v)]))))
+    ;; (into {} (for [[k v] steps] [k (remove (partial = finished-step-name) v)]))))
     ;; This works, but seems considerably harder to read than the (for) version
     ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-step-name) waiting-for)))
-    ;;           steps->waiting-for (keys steps->waiting-for)))
+    ;;           steps (keys steps)))
     ;; This works, but uses another func to hide some of the mess. (for) still looks like the winner.
-    ;; (reduce #(update-waiting-for %1 %2 finished-step-name) steps->waiting-for (keys steps->waiting-for))))
+    ;; (reduce #(update-waiting-for %1 %2 finished-step-name) steps (keys steps))))
 
 (defn part1
   [filename]
-  (let [steps->waiting-for (reduce parse-step {} (rh/read-lines filename))]
-    (loop [steps->waiting-for steps->waiting-for ordered-step-names []]
-      (if (empty? steps->waiting-for)
+  (let [steps (reduce parse-step {} (rh/read-lines filename))]
+    (loop [steps steps ordered-step-names []]
+      (if (empty? steps)
         (apply str ordered-step-names) ; Done
-        (let [next-step-name (find-next steps->waiting-for)]
-          (recur (finished-step steps->waiting-for next-step-name)
+        (let [next-step-name (find-next steps)]
+          (recur (finished-step steps next-step-name)
                  (conj ordered-step-names next-step-name)))))))
