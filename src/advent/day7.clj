@@ -83,7 +83,7 @@
   (let [steps->waiting-for (dissoc steps->waiting-for finished-step-name)]
     ;; And remove it from the waiting-for coll in any other steps
     ;; (into {} (for [[k v] steps->waiting-for] [k (remove (partial = finished-step-name) v)]))))
-    (reduce (fn [m k] (update m k (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
+    (reduce (fn [m k] (update m k (fn [waiting-for] (remove (partial = finished-step-name) waiting-for))))
             steps->waiting-for (keys steps->waiting-for))))
 
 (defn part1
