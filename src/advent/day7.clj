@@ -105,6 +105,10 @@
        sort
        first))
 
+(defn update-waiting-for
+  [steps->waiting-for step-name finished-step-name]
+  (update steps->waiting-for step-name (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
+
 (defn finished-step
   [steps->waiting-for finished-step-name]
   ;; Remove the step we finished...
@@ -116,6 +120,8 @@
     ;; This works, but seems considerably harder to read than the (for) version
     ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-step-name) waiting-for)))
     ;;           steps->waiting-for (keys steps->waiting-for)))
+    ;; This works, but uses another func to hide some of the mess. (for) still looks like the winner.
+    ;; (reduce #(update-waiting-for %1 %2 finished-step-name) steps->waiting-for (keys steps->waiting-for))))
 
 (defn part1
   [filename]
