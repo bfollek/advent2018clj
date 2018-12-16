@@ -97,11 +97,16 @@
         (found-step step1)
         (found-step step2 step1))))
 
-(defn find-next
+(defn ready-to-run
   [steps->waiting-for]
   (->> steps->waiting-for
        (filter (comp empty? val))
-       keys
+       keys))
+
+(defn find-next
+  [steps->waiting-for]
+  (->> steps->waiting-for
+       ready-to-run
        sort
        first))
 
