@@ -51,11 +51,9 @@
    (cond
      ;; Entry exists, waiting-for has a value - add it
      (and (steps name) waiting-for) (update steps name #(conj % waiting-for))
-     ;; No entry, waiting-for has a value - Create entry with waiting-for value
-     (and (not (steps name)) waiting-for) (assoc steps name #{waiting-for})
-     ;; No entry, no waiting-for value - Create entry, no waiting-for value
-     (and (not (steps name)) (not waiting-for)) (assoc steps name #{})
-     ;; Else return steps we started with - nothing changed
+     ;; No entry - create entry with/without waiting-for value
+     (not (steps name)) (assoc steps name (if waiting-for #{waiting-for} #{}))
+     ;; Else return steps we started with - nothing to change
      :else steps)))
 
 (defn parse-step
@@ -66,17 +64,26 @@
         (found-step step1)
         (found-step step2 step1))))
 
-; Step C must be finished before step A can begin.
-; Step C must be finished before step F can begin.
-; Step A must be finished before step B can begin.
-; Step A must be finished before step D can begin.
-; Step B must be finished before step E can begin.
-; Step D must be finished before step E can begin.
-; Step F must be finished before step E can begin.
 (defn load-steps
   [filename]
-  (loop [lines (rh/read-lines filename) steps {} parsed nil]))
+  (reduce parse-step {} (rh/read-lines filename)))
+
+(defn find-next
+[steps]
+;looks for entries with empty sets, sorts names (keys), and returns the first
+}
+
+(defn no-longer-waiting-for
+[steps done]
+;goes through values and removes name from waiting-for
+)
 
 (defn part1
   [filename]
-  (let [steps (load-steps filename)]))
+  (let [steps (load-steps filename)]
+    (loop [ordered-steps []]
+      (if (= (count (ordered-steps)) (count (steps)))
+        (apply str ordered-steps) ; Done
+        (let [next-step (find-next steps)]
+          (no-longer-waiting-for steps next-step)
+          (recur (conj ordered-steps next-step)))))))
