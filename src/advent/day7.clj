@@ -111,22 +111,22 @@
        first))
 
 (defn update-waiting-for
-  [steps step-name finished-step-name]
-  (update steps step-name (fn [waiting-for] (remove #(= finished-step-name %) waiting-for))))
+  [steps step-name finished-name]
+  (update steps step-name (fn [waiting-for] (remove #(= finished-name %) waiting-for))))
 
 (defn finished-step
-  [steps finished-step-name]
+  [steps finished-name]
   ;; Remove the step we finished...
-  (let [steps (dissoc steps finished-step-name)]
+  (let [steps (dissoc steps finished-name)]
     ;; And remove it from the waiting-for coll in any other steps
-    (apply merge (for [[k v] steps] {k (remove (partial = finished-step-name) v)}))))
+    (apply merge (for [[k v] steps] {k (remove (partial = finished-name) v)}))))
     ;; Another (for) way
-    ;; (into {} (for [[k v] steps] [k (remove (partial = finished-step-name) v)]))))
+    ;; (into {} (for [[k v] steps] [k (remove (partial = finished-name) v)]))))
     ;; This works, but seems considerably harder to read than the (for) version
-    ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-step-name) waiting-for)))
+    ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (partial = finished-name) waiting-for)))
     ;;           steps (keys steps)))
     ;; This works, but uses another func to hide some of the mess. (for) still looks like the winner.
-    ;; (reduce #(update-waiting-for %1 %2 finished-step-name) steps (keys steps))))
+    ;; (reduce #(update-waiting-for %1 %2 finished-name) steps (keys steps))))
 
 (defn part1
   [filename]
