@@ -72,18 +72,20 @@
        sort
        first))
 
-(defn no-longer-waiting-for
-  [steps done]
-;goes through values and removes name from waiting-for
-  )
+(defn did-step
+  [steps next-step]
+  (let [steps (dissoc steps next-step)]
+    (let [m (into {} (for [[k v] steps] [k (remove (partial = next-step) v)]))]
+      (println "m == " m)
+      m)))
 
 (defn part1
   [filename]
   (let [steps (reduce parse-step {} (rh/read-lines filename))]
-    ; (loop [ordered-steps []]
-    ;   (if (= (count (ordered-steps)) (count (steps)))
-    ;     (apply str ordered-steps) ; Done
-    ;     (let [next-step (find-next steps)]
-    ;       (no-longer-waiting-for steps next-step)
-    ;       (recur (conj ordered-steps next-step)))))
-    steps))
+    (loop [steps steps ordered-steps []]
+      (if (empty? steps)
+        (apply str ordered-steps) ; Done
+        (let [next-step (find-next steps)]
+          (println "next step: " next-step)
+          (recur (did-step steps next-step)
+                 (conj ordered-steps next-step)))))))
