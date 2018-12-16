@@ -66,8 +66,11 @@
 
 (defn find-next
   [steps]
-;looks for entries with empty sets, sorts names (keys), and returns the first
-  )
+  (->> steps
+       (filter (comp empty? val))
+       keys
+       sort
+       first))
 
 (defn no-longer-waiting-for
   [steps done]
