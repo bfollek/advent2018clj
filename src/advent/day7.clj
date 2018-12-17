@@ -101,14 +101,18 @@
   [steps]
   (->> steps
        (filter (comp empty? val))
-       keys))
+       keys
+       sort))
 
 (defn find-next
-  [steps]
-  (->> steps
-       ready-to-run
-       sort
-       first))
+  ([steps]
+   (first (find-next steps 1)))
+  ([steps n]
+   (->> steps
+        (filter (comp empty? val))
+        keys
+        sort
+        (take n))))
 
 (defn update-waiting-for
   [steps step-name finished-name]
