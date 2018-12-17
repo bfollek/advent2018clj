@@ -144,16 +144,17 @@
           (recur (finished-steps steps next-step-name)
                  (conj ordered-step-names next-step-name)))))))
 
-(defn time-steps
-  [& step-names]
-  (letfn [(step-time [step-name] (+ 61 (- (int (first step-name)) (int \A))))]
-    (reduce + (map step-time step-names))))
+(defn time-step
+  [step-name]
+  (let [int-of-name (int (first step-name))
+        offset-from-A (inc (- int-of-name (int \A)))]
+    (+ 60 offset-from-A)))
 
 (defn part2
   [filename num-workers]
 ;;TODO
   ; similar to part1 loop...
   ; get up to num-workers (next) steps
-  ; (time-steps)
+  ; (reduce + (map time-step step-names))
   ; (finished-steps)
   )
