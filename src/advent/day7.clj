@@ -146,7 +146,8 @@
 
 (defn time-steps
   [& step-names]
-  (reduce + #(+ 60 (- (int %1) (int \A))) step-names))
+  (letfn [(step-time [step-name] (+ 61 (- (int (first step-name)) (int \A))))]
+    (reduce + (map step-time step-names))))
 
 (defn part2
   [filename num-workers]
