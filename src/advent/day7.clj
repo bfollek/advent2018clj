@@ -123,7 +123,7 @@
   ;; Remove the step we finished...
   (let [steps (apply dissoc steps finished-names)]
     ;; And remove it from the waiting-for coll in any other steps
-    (apply merge (for [[k v] steps] {k (remove (partial = (first finished-names)) v)}))))
+    (apply merge (for [[k v] steps] {k (remove (set finished-names) v)}))))
     ;; Another (for) way
     ;; (into {} (for [[k v] steps] [k (remove (partial = finished-name) v)]))))
     ;; This works, but seems considerably harder to read than the (for) version
