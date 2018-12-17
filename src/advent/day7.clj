@@ -119,7 +119,7 @@
   ;; Untested after the change to multiple finished-names...
   (update steps step-name (fn [waiting-for] (remove (set finished-names) waiting-for))))
 
-(defn finished-step
+(defn finished-steps
   [steps & finished-names]
   ;; Remove the step we finished...
   (let [steps (apply dissoc steps finished-names)]
@@ -141,5 +141,18 @@
       (if (empty? steps)
         (apply str ordered-step-names) ; Done
         (let [next-step-name (find-next steps)]
-          (recur (finished-step steps next-step-name)
+          (recur (finished-steps steps next-step-name)
                  (conj ordered-step-names next-step-name)))))))
+
+(defn time-steps
+  [& step-names]
+  (reduce + #(+ 60 (- (int %1) (int \A))) step-names))
+
+(defn part2
+  [filename num-workers]
+;;TODO
+  ; similar to part1 loop...
+  ; get up to num-workers (next) steps
+  ; (time-steps)
+  ; (finished-steps)
+  )
