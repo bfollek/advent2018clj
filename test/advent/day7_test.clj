@@ -24,8 +24,8 @@
   (testing "part1"
     (is (= (part1 "data/day7.txt") "HEGMPOAWBFCDITVXYZRKUQNSLJ"))))
 
-
-(deftest test-day7-time-step
+(deftest test-day7-time-steps
   (testing "time-step"
-    (is (= 61 (time-step "A")))
-    (is (= 86 (time-step "Z")))))
+    (is (= 61 (time-steps ["A"])))
+    (is (= 86 (time-steps ["Z"])))
+    (is (= 147 (time-steps ["A" "Z"])))))

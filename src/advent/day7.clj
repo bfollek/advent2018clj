@@ -105,14 +105,12 @@
        sort))
 
 (defn find-next
-  ([steps]
-   (first (find-next steps 1)))
-  ([steps n]
-   (->> steps
-        (filter (comp empty? val))
-        keys
-        sort
-        (take n))))
+  [steps n]
+  (->> steps
+       (filter (comp empty? val))
+       keys
+       sort
+       (take n)))
 
 (defn update-waiting-for
   [steps step-name finished-names]
@@ -120,7 +118,8 @@
   (update steps step-name (fn [waiting-for] (remove (set finished-names) waiting-for))))
 
 (defn finished-steps
-  [steps & finished-names]
+  [steps finished-names]
+  {:pre  [(seq finished-names)]}
   ;; Remove the step we finished...
   (let [steps (apply dissoc steps finished-names)]
     ;; And remove it from the waiting-for coll in any other steps
@@ -140,21 +139,24 @@
     (loop [steps steps ordered-step-names []]
       (if (empty? steps)
         (apply str ordered-step-names) ; Done
-        (let [next-step-name (find-next steps)]
+        (let [next-step-name (find-next steps 1)]
           (recur (finished-steps steps next-step-name)
-                 (conj ordered-step-names next-step-name)))))))
+                 (apply conj ordered-step-names next-step-name)))))))
 
-(defn time-step
-  [step-name]
-  (let [int-of-name (int (first step-name))
-        offset-from-A (inc (- int-of-name (int \A)))]
-    (+ 60 offset-from-A)))
+(defn time-steps
+  [step-names]
+  {:pre  [(seq step-names)]}
+  (letfn [(valu [step-name]
+            ;; "A" = 61, "B" = 62, etc.
+            (+ 61 (- (int (first step-name)) (int \A))))]
+    (reduce + (map valu step-names))))
 
 (defn part2
   [filename num-workers]
-;;TODO
-  ; similar to part1 loop...
-  ; get up to num-workers (next) steps
-  ; (reduce + (map time-step step-names))
-  ; (finished-steps)
-  )
+  (let [steps (reduce parse-step {} (rh/read-lines filename))]
+    (loop [steps steps elapsed 0]
+      (if (empty? steps)
+        elapsed ; Done
+        (let [next-step-names (find-next steps num-workers)]
+          (recur (finished-steps steps next-step-names)
+                 (+ elapsed (time-steps next-step-names))))))))
