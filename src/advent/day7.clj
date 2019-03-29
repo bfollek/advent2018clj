@@ -97,6 +97,9 @@
         (found-step step1)
         (found-step step2 step1))))
 
+(defn load-steps
+  [filename]
+  (reduce parse-step {} (rh/read-lines filename)))
 (defn ready-to-run
   [steps]
   (->> steps
@@ -112,11 +115,6 @@
        sort
        (take n)))
 
-(defn update-waiting-for
-  [steps step-name finished-names]
-  ;; Untested after the change to multiple finished-names...
-  (update steps step-name (fn [waiting-for] (remove (set finished-names) waiting-for))))
-
 (defn finished-steps
   [steps finished-names]
   {:pre  [(seq finished-names)]}
@@ -124,18 +122,10 @@
   (let [steps (apply dissoc steps finished-names)]
     ;; And remove it from the waiting-for coll in any other steps
     (apply merge (for [[k v] steps] {k (remove (set finished-names) v)}))))
-    ;; Untested after the change to multiple finished-names...
-    ;; Another (for) way
-    ;; (into {} (for [[k v] steps] [k (remove (set finished-names) v)]))))
-    ;; This works, but seems considerably harder to read than the (for) version
-    ;; (reduce #(update %1 %2 (fn [waiting-for] (remove (set finished-names) waiting-for)))
-    ;;           steps (keys steps)))
-    ;; This works, but uses another func to hide some of the mess. (for) still looks like the winner.
-    ;; (reduce #(update-waiting-for %1 %2 finished-name) steps (keys steps))))
 
 (defn part1
   [filename]
-  (let [steps (reduce parse-step {} (rh/read-lines filename))]
+  (let [steps (load-steps filename)]
     (loop [steps steps ordered-step-names []]
       (if (empty? steps)
         (apply str ordered-step-names) ; Done
@@ -143,20 +133,23 @@
           (recur (finished-steps steps next-step-name)
                  (apply conj ordered-step-names next-step-name)))))))
 
-(defn time-steps
-  [step-names]
-  {:pre  [(seq step-names)]}
-  (letfn [(valu [step-name]
-            ;; "A" = 61, "B" = 62, etc.
-            (+ 61 (- (int (first step-name)) (int \A))))]
-    (reduce + (map valu step-names))))
+; (defn time-steps
+;   [step-names]
+;   {:pre  [(seq step-names)]}
+;   (letfn [(valu [step-name]
+;             ;; "A" = 61, "B" = 62, etc.
+;             (+ 61 (- (int (first step-name)) (int \A))))]
+;     (reduce + (map valu step-names))))
 
-(defn part2
-  [filename num-workers]
-  (let [steps (reduce parse-step {} (rh/read-lines filename))]
-    (loop [steps steps elapsed 0]
-      (if (empty? steps)
-        elapsed ; Done
-        (let [next-step-names (find-next steps num-workers)]
-          (recur (finished-steps steps next-step-names)
-                 (+ elapsed (time-steps next-step-names))))))))
+; (defn part2
+;   [filename num-workers]
+;   (let [steps (load-steps filename)]
+;     (loop [steps steps clock 0 num-working 0]
+;       (if (empty? steps)
+;         clock ; Done
+;         (let [next-step-names (find-next steps (- num-workers num-working))]
+;           (recur (finished-steps steps next-step-names)
+;                  ;; Would have to deal with num-working here
+;                  ;; Also steps still in progress
+;                  (+ clock (time-steps next-step-names))
+;                  (num-workers))))))
