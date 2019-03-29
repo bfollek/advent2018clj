@@ -1,6 +1,4 @@
-# advent
-
-A Clojure library designed to ... well, that part is up to you.
+# advent2018clj
 
 Advent of Code 2018 in clojure
 
