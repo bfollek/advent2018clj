@@ -51,12 +51,13 @@
 ; What is the first frequency your device reaches twice?
 
 (ns advent.day1
-  (:require [clojure.string :as str]
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
             [rabbithole.core :as rh]))
 
 (defn day1
   [file-name]
-  (with-open [rdr (clojure.java.io/reader file-name)]
+  (with-open [rdr (io/reader file-name)]
     (->> rdr
          line-seq
          (map rh/to-int)

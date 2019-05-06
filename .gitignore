@@ -11,6 +11,7 @@ pom.xml.asc
 .hg/
 
 .DS_Store
+.eastwood
 clint.out
 scratch*
 TODO

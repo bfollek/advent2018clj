@@ -92,7 +92,6 @@
 (defn parse-step
   [steps s]
   (let [[_ step1 step2] (re-find #"Step\s+(\w)\s+must be finished before step\s+(\w)\s+can begin." s)]
-    [step1 step2]
     (-> steps
         (found-step step1)
         (found-step step2 step1))))
