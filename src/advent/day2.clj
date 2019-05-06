@@ -28,10 +28,16 @@
 
 (defn- check-id
   [m id]
+  ; freqs is a seq of ints that are the char counts.
+  ; e.g., for an id of "aabcdd", it's (2 1 1 2)
   (let [freqs (-> id frequencies vals)]
     (letfn [(update-cnt
               [key]
               (if (some #{key} freqs) (inc (m key)) (m key)))]
+      ; Check the freqs seq for counts of 2 and 3.
+      ; If we find a count, we increment the count of counts in m.
+      ; e.g.; if m is {2 3, 3 1} and id is "aabcdd", the result
+      ; is {2 4, 3 1} because we found a count of 2, but not 3.
       (hash-map 2 (update-cnt 2), 3 (update-cnt 3)))))
 
 (defn checksum
