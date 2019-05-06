@@ -78,14 +78,14 @@
    Each key is a step name, and each value is a coll of step names that the
    key step is waiting for. Dups in the waiting-for coll are harmless. When
    a step finishes, we'll remove all occurences of the name."
-  ([steps name]
-   (found-step steps name nil))
-  ([steps name waiting-for]
+  ([steps step-name]
+   (found-step steps step-name nil))
+  ([steps step-name waiting-for]
    (cond
      ;; Entry exists, waiting-for has a value - add it
-     (and (steps name) waiting-for) (update steps name #(conj % waiting-for))
+     (and (steps step-name) waiting-for) (update steps step-name #(conj % waiting-for))
      ;; No entry - create entry with/without waiting-for value
-     (not (steps name)) (assoc steps name (if waiting-for [waiting-for] []))
+     (not (steps step-name)) (assoc steps step-name (if waiting-for [waiting-for] []))
      ;; Else return steps we started with - nothing to change
      :else steps)))
 
@@ -128,7 +128,7 @@
   (let [steps (load-steps filename)]
     (loop [steps steps ordered-step-names []]
       (if (empty? steps)
-        (apply str ordered-step-names) ; Done
+        (str/join ordered-step-names) ; Done
         (let [next-step-name (find-next steps 1)]
           (recur (finished-steps steps next-step-name)
                  (apply conj ordered-step-names next-step-name)))))))

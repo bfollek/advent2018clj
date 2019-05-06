@@ -23,4 +23,3 @@
 (deftest test-day7-part1
   (testing "part1"
     (is (= (part1 "data/day7.txt") "HEGMPOAWBFCDITVXYZRKUQNSLJ"))))
-

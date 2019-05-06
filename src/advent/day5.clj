@@ -52,7 +52,7 @@
    (let [skip (rh/to-lower skip)
          skip-char? (fn [c] (= skip (rh/to-lower c)))
          ;; Drop any leading skip chars
-         s (drop-while #(skip-char? %) s)]
+         s (drop-while skip-char? s)]
      (reduce (fn [v c] (cond
                          (skip-char? c) v
                          ;; Skip c. v doesn't change.

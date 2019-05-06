@@ -65,7 +65,7 @@
 (defn new-minute-counters
   "New-minute-counters returns a vector of 60 zeros, one for each minute."
   []
-  (into [] (take 60 (repeat 0))))
+  (vec (take 60 (repeat 0))))
 
 (defn found-id
   [ids->minutes id]
@@ -125,8 +125,7 @@
 
 (defn strategy-1
   []
-  (let [entry  (-> (load-timestamps)
-                   most-naps-total)]
+  (let [entry (most-naps-total (load-timestamps))]
     (* (key entry) (second (most-naps-minute entry)))))
 
 (defn strategy-2
