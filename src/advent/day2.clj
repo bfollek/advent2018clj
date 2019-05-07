@@ -63,24 +63,39 @@
 
 ; What letters are common between the two correct box IDs? (In the example above, this is found by removing the differing character from either ID, producing fgij.)
 
-(defn has-one-diff?
-  [id1 id2]
-  (->> (rh/zip-up id1 id2)
-       (reduce (fn [acc nxt] (if (not= (first nxt) (second nxt)) (inc acc) acc)) 0)
-       (= 1)))
+; (defn has-one-diff?
+;   [id1 id2]
+;   (->> (rh/zip-up id1 id2)
+;        (reduce (fn [acc nxt] (if (not= (first nxt) (second nxt)) (inc acc) acc)) 0)
+;        (= 1)))
 
-(defn find-correct-ids
-  [file-name]
-  (let [ids (-> file-name slurp str/split-lines)]
-    (->> (for [id1 ids id2 ids :when (has-one-diff? id1 id2)]
-           [id1 id2])
-         (take 1)
-         flatten)))
+; (defn find-correct-ids
+;   [file-name]
+;   (let [ids (-> file-name slurp str/split-lines)]
+;     (->> (for [id1 ids id2 ids :when (has-one-diff? id1 id2)]
+;            [id1 id2])
+;          (take 1)
+;          flatten)))
+
+(defn group-common-uncommon
+  "Return a two-item vector. The first item is a collection of the pairs of chars that s1 and s2 have in common.
+  The second item is a collection of the pairs of chars where s1 and s2 differ."
+  [s1 s2]
+  ; Create pairs of (s1, s2) chars
+  (let [char-pairs (rh/zip-up s1 s2)
+        ; Separate pairs where the chars match from pairs where they don't
+        m (group-by (fn [[x y]] (= x y)) char-pairs)]
+    [(m true) (m false)]))
 
 (defn common-letters
+  "Day 2, part2"
   [file-name]
-  (let [[id1 id2] (find-correct-ids file-name)]
-    (->> (rh/zip-up id1 id2) ; "abc" "abx" => ([\a \a] [\b \b] [\c \x])
-         (remove #(not= (first %) (second %)))
-         (map first)
-         str/join)))
+  (let [ids (-> file-name slurp str/split-lines)
+        id-pairs (for [id1 ids id2 ids] [id1 id2])]
+    (loop [id-pairs id-pairs]
+      (let [[s1 s2] (first id-pairs)
+            [common uncommon] (group-common-uncommon s1 s2)]
+        (if (= 1 (count uncommon))
+          (str/join (map first common))
+          (recur (rest id-pairs)))))))
+; need a reduce to go through id-pairs, call group-common-letters, check result, exit reduce early with (str/join ()map first common))
