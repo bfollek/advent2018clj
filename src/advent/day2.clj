@@ -98,4 +98,12 @@
         (if (= 1 (count uncommon))
           (str/join (map first common))
           (recur (rest id-pairs)))))))
+
+
+; map id-pairs to group-common-uncommon
+; some count 1 uncommon
+; return common
+
 ; need a reduce to go through id-pairs, call group-common-letters, check result, exit reduce early with (str/join ()map first common))
+
+; maybe a for with a (take 1)
