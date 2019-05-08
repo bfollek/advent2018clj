@@ -9,3 +9,7 @@
 (deftest test-day02-part2
   (testing "common-letters"
     (is (= "fvstwblgqkhpuixdrnevmaycd" (common-letters "data/day02.txt")))))
+
+(deftest test-split-chars
+  (testing "split-chars"
+    (is (= [[[\c \d]] [[\a \a] [\b \b]]] (split-chars "abc" "abd")))))
