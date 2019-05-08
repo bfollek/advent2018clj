@@ -55,7 +55,7 @@
             [clojure.string :as str]
             [rabbithole.core :as rh]))
 
-(defn day01
+(defn sum-freqs
   [file-name]
   (with-open [rdr (io/reader file-name)]
     (->> rdr
@@ -69,7 +69,7 @@
                      slurp
                      (str/split #"\n"))))
 
-(defn day01-part2
+(defn find-repeated-sum
   [file-name]
   (loop [freq 0 changes (cycle (get-changes file-name)) seen {}]
     (let [freq (+ freq (first changes))]

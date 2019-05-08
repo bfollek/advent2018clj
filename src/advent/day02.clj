@@ -69,25 +69,25 @@
   (let [ids (-> file-name slurp str/split-lines)]
     (for [id1 ids id2 ids] [id1 id2])))
 
-(defn split-chars
-  "Returns a two-item vector. The first item is a vector of the pairs of chars where s1 and s2 differ.
-  The second item is a vector of the pairs of chars that s1 and s2 have in common. Each pair is a vector."
-  ;Example: (split-chars "abc" "abd") => [[[\c \d]] [[\a \a] [\b \b]]]
+(defn diff-chars
+  "Returns a map. The :diff key's value is a vector of the pairs of chars where s1 and s2 differ.
+  The :same key's value is a vector of the pairs of chars that s1 and s2 have in common. Within
+  each value vector, cach char pair is itself a vector."
   [s1 s2]
   ; Create pairs of (s1, s2) chars
   (let [char-pairs (rh/zip-up s1 s2)
         ; Separate pairs where the chars match from pairs where they don't
-        m (group-by (fn [[x y]] (not= x y)) char-pairs)]
-    [(m true) (m false)]))
+        m (group-by (fn [[x y]] (= x y)) char-pairs)]
+    {:same (m true) :diff (m false)}))
 
 (defn common-letters
   "Day 2, part2"
   [file-name]
   (->>
    (id-pairs file-name)
-   (map (fn [[s1 s2]] (split-chars s1 s2)))
-   (filter #(= 1 (count (first %))))
+   (map (fn [[s1 s2]] (diff-chars s1 s2)))
+   (filter #(= 1 (count (:diff %)))) ; s1 and s2 differ by just 1 char
    (first) ; first split-chars result that passes filter
-   (second) ; pairs of chars that s1 and s2 have in common
+   (:same) ; char pairs that are the same in s1 and s2
    (map first) ; first char in each pair
    (str/join))) ; to a string

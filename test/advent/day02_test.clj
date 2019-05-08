@@ -10,6 +10,7 @@
   (testing "common-letters"
     (is (= "fvstwblgqkhpuixdrnevmaycd" (common-letters "data/day02.txt")))))
 
-(deftest test-split-chars
-  (testing "split-chars"
-    (is (= [[[\c \d]] [[\a \a] [\b \b]]] (split-chars "abc" "abd")))))
+(deftest test-diff-chars
+  (testing "diff-chars"
+    (let [m (diff-chars "abc" "abd")]
+      (is (and (= [[\c \d]] (:diff m)) (= [[\a \a] [\b \b]] (:same m)))))))
