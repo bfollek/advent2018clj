@@ -43,11 +43,13 @@
   the guard was asleep at each minute of the shift. The function returns
   the `ids->minutes` map."
   [file-name]
-  (loop [lines (sort (rh/read-lines file-name)) ids->minutes {} parsed nil]
-    (if (empty? lines)
-      ids->minutes
-      (let [[ids->minutes parsed] (parse-timestamp ids->minutes parsed (first lines))]
-        (recur (rest lines) ids->minutes parsed)))))
+  (->>
+   (sort (rh/read-lines file-name))
+   (reduce (fn [[ids->minutes parsed] timestamp]
+             (let [[ids->minutes parsed] (parse-timestamp ids->minutes parsed timestamp)]
+               [ids->minutes parsed]))
+           [{} nil])
+   first))
 
 (defn most-naps-total
   "Most-naps-total finds the guard who spent the most minutes napping, total.
