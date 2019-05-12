@@ -122,7 +122,7 @@
     ;; And remove it from the waiting-for coll in any other steps
     (apply merge (for [[k v] steps] {k (remove (set finished-names) v)}))))
 
-(defn part1
+(defn time-to-complete-steps
   [filename]
   (let [steps (load-steps filename)]
     (loop [steps steps ordered-step-names []]
@@ -131,24 +131,3 @@
         (let [next-step-name (find-next steps 1)]
           (recur (finished-steps steps next-step-name)
                  (apply conj ordered-step-names next-step-name)))))))
-
-; (defn time-steps
-;   [step-names]
-;   {:pre  [(seq step-names)]}
-;   (letfn [(valu [step-name]
-;             ;; "A" = 61, "B" = 62, etc.
-;             (+ 61 (- (int (first step-name)) (int \A))))]
-;     (reduce + (map valu step-names))))
-
-; (defn part2
-;   [filename num-workers]
-;   (let [steps (load-steps filename)]
-;     (loop [steps steps clock 0 num-working 0]
-;       (if (empty? steps)
-;         clock ; Done
-;         (let [next-step-names (find-next steps (- num-workers num-working))]
-;           (recur (finished-steps steps next-step-names)
-;                  ;; Would have to deal with num-working here
-;                  ;; Also steps still in progress
-;                  (+ clock (time-steps next-step-names))
-;                  (num-workers))))))

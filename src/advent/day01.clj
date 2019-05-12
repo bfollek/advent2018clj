@@ -71,7 +71,7 @@
    (map rh/to-int)
    cycle))
 
-(defn find-repeated-sum
+(defn find-repeated-sum-loop
   "Find the first frequency sum that repeats."
   [file-name]
   (loop [freq-sum 0 changes (freq-changes file-name) seen #{}] ; seen is a set

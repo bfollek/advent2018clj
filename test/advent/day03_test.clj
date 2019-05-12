@@ -3,9 +3,7 @@
             [advent.day03 :refer :all]))
 
 (deftest test-day03-part1
-  (testing "multi-claimed-inches-of-fabric"
-    (is (= 109716 (multi-claimed-inches-of-fabric)))))
+  (is (= 109716 (multi-claimed-inches-of-fabric "data/day03.txt"))))
 
 (deftest test-day03-part2
-  (testing "no-overlap"
-    (is (= 124 (no-overlap)))))
+  (is (= 124 (no-overlap "data/day03.txt"))))

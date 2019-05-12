@@ -55,8 +55,8 @@
        (apply ->Claim)))
 
 (defn read-claims
-  []
-  (let [lines (rh/read-lines "data/day03.txt")]
+  [file-name]
+  (let [lines (rh/read-lines file-name)]
     (map string-to-claim lines)))
 
 ;; Each point is a key into the map.
@@ -74,8 +74,8 @@
     (reduce #(update-point %1 %2 (:id c)) m points)))
 
 (defn multi-claimed-inches-of-fabric
-  []
-  (->> (read-claims)
+  [file-name]
+  (->> (read-claims file-name)
        (reduce map-claim {})     ; Map each Claim point to a vector of Claim ids
        vals                      ; Get the vectors of ids
        (filter #(> (count %) 1)) ; Get the vectors with more than one id
@@ -88,8 +88,8 @@
 ; What is the ID of the only claim that doesn't overlap?
 
 (defn no-overlap
-  []
-  (let [claims (read-claims)
+  [file-name]
+  (let [claims (read-claims file-name)
         m (reduce map-claim {} claims)        ; Map each Claim point to a vector of Claim ids
         id-vecs (vals m)                      ; The id vectors from the map
         m (group-by #(= (count %) 1) id-vecs) ; point ids that are unique vs. point ids that are NOT unique

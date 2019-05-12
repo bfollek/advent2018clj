@@ -100,8 +100,8 @@
   Each map value is a vector of 60 ints. The vector counts how many times
   the guard was asleep at each minute of the shift. The function returns
   the `ids->minutes` map."
-  []
-  (loop [lines (sort (rh/read-lines "data/day04.txt")) ids->minutes {} parsed nil]
+  [file-name]
+  (loop [lines (sort (rh/read-lines file-name)) ids->minutes {} parsed nil]
     (if (empty? lines)
       ids->minutes
       (let [[ids->minutes parsed] (parse-timestamp ids->minutes parsed (first lines))]
@@ -124,13 +124,13 @@
     (apply max-key first indexed)))
 
 (defn strategy-1
-  []
-  (let [entry (most-naps-total (load-timestamps))]
+  [file-name]
+  (let [entry (most-naps-total (load-timestamps file-name))]
     (* (key entry) (second (most-naps-minute entry)))))
 
 (defn strategy-2
-  []
-  (let [most (->> (load-timestamps)
+  [file-name]
+  (let [most (->> (load-timestamps file-name)
                   ;; A seq of vectors. Each vector is # of minutes, index of minutes, id of guard.
                   (map #(conj (most-naps-minute %) (key %)))
                   (apply max-key first))]

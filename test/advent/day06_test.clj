@@ -3,5 +3,4 @@
             [advent.day06 :refer :all]))
 
 ; (deftest test-day06-part1
-;   (testing "part1"
-;     (is (= 0 (part1 "data/day06.txt")))))
+;     (is (= 0 (largest-area "data/day06.txt"))))

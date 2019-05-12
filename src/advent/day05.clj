@@ -70,11 +70,11 @@
                          ;; Keep c
              [(first s)] (rest s)))))
 
-(defn part1
+(defn react-polymer
   [filename]
   (count (shrink (slurp filename))))
 
-(defn part2
+(defn improve-polymer
   [filename]
   (let [s (slurp filename)
         units (rh/char-range \a \z)]
