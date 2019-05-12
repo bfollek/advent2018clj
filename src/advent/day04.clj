@@ -23,8 +23,11 @@
 
 (defn parse-timestamp
   "Parse-timestamp parses out the data from the `timestamp` string.
-  It stores the data in the `parsed` record. It updates the `id->minutes`
-  map as necessary. It returns the `id->minutes` map and the `parsed` record."
+  It stores the data in the `parsed` record, which holds state until
+  a nap is over.
+
+  Parse-timestamp updates the `id->minutes` map as necessary. It returns the
+ `id->minutes` map and the `parsed` record."
   [ids->minutes parsed timestamp]
   (let [fix-field (comp rh/to-int second)]
     (if-let [id (fix-field (re-find #"Guard #(\d+) begins shift" timestamp))]
