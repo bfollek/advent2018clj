@@ -19,7 +19,7 @@
      (reduce (fn [v c] (cond
                          (skip-char? c) v
                          ;; Skip c. v doesn't change.
-                         (and (seq v) (reaction? (last v) c)) (pop v)
+                         (and (seq v) (reaction? (peek v) c)) (pop v)
                          ;; Skip c and drop the last char of v.
                          ;; Keep v a vector so that conj works right.
                          ;; The (seq v) check makes sure v isn't empty. This comes up
@@ -31,6 +31,10 @@
                          ;; First I tried (butlast) or (drop-last) wrapped in (vec) or (into []).
                          ;; They were about the same speed: more than twice as slow as (subvec).
                          ;; (pop) is about 10% faster (than subvec).
+                         ;;
+                         ;; Then, based on this, I switched from (last) to (peek), and things
+                         ;; got an order of magnitude faster...
+                         ;; https://github.com/danielmiladinov/joy-of-clojure/blob/master/src/joy-of-clojure/chapter5/vectors.clj
                          :else (conj v c)))
                          ;; Keep c
              [(first s)] (rest s)))))
