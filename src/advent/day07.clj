@@ -4,7 +4,7 @@
             [rabbithole.core :as rh]))
 
 (defn found-step
-  "Found-step maintains the `steps` map by adding keys and values as necessary.
+  "Maintains the `steps` map by adding keys and values as necessary.
    Each key is a step name, and each value is a coll of step names that the
    key step is waiting for. Dups in the waiting-for coll are harmless. When
    a step finishes, we'll remove all occurences of the name."
