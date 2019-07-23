@@ -34,7 +34,7 @@
                     (if-let [fell-asleep (fix-timestamp-field (re-find #":(\d+)\] falls asleep" ts))]
                       [(assoc nap :fell-asleep fell-asleep) naps]
                       (if-let [woke-up (fix-timestamp-field (re-find #":(\d+)\] wakes up" ts))]
-                  ;; One guard may take multiple naps on a shift, so reuse the Nap record to keep the id.
+                        ;; One guard may take multiple naps on a shift, so reuse the Nap record to keep the id.
                         [nap (conj naps (assoc nap :woke-up woke-up))]
                         (throw (Exception. (str "Unexpected timestamp:")))))))
                 [nil []]
@@ -132,7 +132,7 @@
 
 (defn strategy-1-new
   [file-name]
-  (->>
+  (->
    (rh/read-lines file-name)
    sort
    parse-naps))
