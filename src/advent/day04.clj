@@ -27,7 +27,7 @@
 (defn- parse-naps
   "Parses out the `nap` records from the `timestamp` string. Returns a vector of Nap."
   [timestamps]
-  (let [[_ naps]
+  (let [result
         (reduce (fn [[nap naps] ts]
                   (if-let [id (fix-timestamp-field (re-find #"Guard #(\d+) begins shift" ts))]
                     [(map->Nap {:id id}) naps]
@@ -39,7 +39,8 @@
                         (throw (Exception. (str "Unexpected timestamp:")))))))
                 [nil []]
                 timestamps)]
-    naps))
+    ;; result is [last-Nap vector-of-Naps]
+    (second result)))
 
   ; (loop [tss timestamps
   ;        nap nil
