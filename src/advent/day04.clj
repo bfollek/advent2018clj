@@ -103,21 +103,17 @@
 
   What is the ID of the guard you chose multiplied by the minute you chose?"
   [file-name]
-  (let [ids->minutes (->
-                      (rh/read-lines file-name)
-                      sort
-                      parse-naps
-                      map-naps)
+  (let [ids->minutes (load-timestamps file-name)
         slot (most-naps-total ids->minutes)]
     (* (key slot) (second (most-naps-minute slot)))))
 
-; (defn strategy-2
-;   "Of all guards, which guard is most frequently asleep on the same minute?
+(defn strategy-2
+  "Of all guards, which guard is most frequently asleep on the same minute?
 
-;   What is the ID of the guard you chose multiplied by the minute you chose?"
-;   [file-name]
-;   (let [most (->> (load-timestamps file-name)
-;                   ;; A seq of vectors. Each vector is # of minutes, index of minutes, id of guard.
-;                   (map #(conj (most-naps-minute %) (key %)))
-;                   (apply max-key first))]
-;     (* (second most) (last most))))
+  What is the ID of the guard you chose multiplied by the minute you chose?"
+  [file-name]
+  (let [most (->> (load-timestamps file-name)
+                  ; Make a seq of vectors. Each vector is # of minutes, index of minutes, id of guard.
+                  (map #(conj (most-naps-minute %) (key %)))
+                  (apply max-key first))]
+    (* (second most) (last most))))
