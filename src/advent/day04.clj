@@ -85,11 +85,8 @@
     (apply max-key first indexed)))
 
 (defn- load-timestamps
-  "Loads the timestamp data from a text file.
-  It stores the data in the `ids->minutes` map. Each map key is a guard id.
-  Each map value is a vector of 60 ints. The vector counts how many times
-  the guard was asleep at each minute of the shift. The function returns
-  the `ids->minutes` map."
+  "Loads the timestamp data from a text file into a map.
+   Returns the map."
   [file-name]
   (->
    (rh/read-lines file-name)
