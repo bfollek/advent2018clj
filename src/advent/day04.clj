@@ -27,20 +27,18 @@
 (defn- parse-naps
   "Parses out the `nap` records from the `timestamp` string. Returns a vector of Nap."
   [timestamps]
-  (let [result
-        (reduce (fn [[nap naps] ts]
-                  (if-let [id (fix-timestamp-field (re-find #"Guard #(\d+) begins shift" ts))]
-                    [(map->Nap {:id id}) naps]
-                    (if-let [fell-asleep (fix-timestamp-field (re-find #":(\d+)\] falls asleep" ts))]
-                      [(assoc nap :fell-asleep fell-asleep) naps]
-                      (if-let [woke-up (fix-timestamp-field (re-find #":(\d+)\] wakes up" ts))]
-                        ;; One guard may take multiple naps on a shift, so reuse the Nap record to keep the id.
-                        [nap (conj naps (assoc nap :woke-up woke-up))]
-                        (throw (Exception. (str "Unexpected timestamp:")))))))
-                [nil []]
-                timestamps)]
-    ;; result is [last-Nap vector-of-Naps]
-    (second result)))
+  (let [[_ naps] (reduce (fn [[nap naps] ts]
+                           (if-let [id (fix-timestamp-field (re-find #"Guard #(\d+) begins shift" ts))]
+                             [(map->Nap {:id id}) naps]
+                             (if-let [fell-asleep (fix-timestamp-field (re-find #":(\d+)\] falls asleep" ts))]
+                               [(assoc nap :fell-asleep fell-asleep) naps]
+                               (if-let [woke-up (fix-timestamp-field (re-find #":(\d+)\] wakes up" ts))]
+                                 ;; One guard may take multiple naps on a shift, so reuse the Nap record to keep the id.
+                                 [nap (conj naps (assoc nap :woke-up woke-up))]
+                                 (throw (Exception. (str "Unexpected timestamp:")))))))
+                         [nil []]
+                         timestamps)]
+    naps))
 
   ; (loop [tss timestamps
   ;        nap nil
