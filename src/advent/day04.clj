@@ -100,8 +100,8 @@
 
   What is the ID of the guard you chose multiplied by the minute you chose?"
   [file-name]
-  (let [ids->minutes (load-timestamps file-name)
-        slot (most-naps-total ids->minutes)]
+  (let [slot (->> (load-timestamps file-name)
+                  most-naps-total)]
     (* (key slot) (second (most-naps-minute slot)))))
 
 (defn strategy-2
