@@ -61,12 +61,10 @@
 
    Returns the `ids->minutes` map."
   [naps]
-  (loop [naps naps ids->minutes {}]
-    (let [nap (first naps)]
-      (if (empty? naps)
-        ids->minutes
-        (let [ids->minutes (ensure-id-in-map ids->minutes (:id nap))]
-          (recur (rest naps) (tally-nap ids->minutes nap)))))))
+  (reduce (fn [ids->minutes nap]
+            (let [ids->minutes (ensure-id-in-map ids->minutes (:id nap))]
+              (tally-nap ids->minutes nap)))
+          {} naps))
 
 (defn- most-naps-total
   "Finds the guard who spent the most minutes napping, total.
