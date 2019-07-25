@@ -10,13 +10,13 @@
   []
   (vec (take 60 (repeat 0))))
 
-(defn ensure-id-in-map
+(defn- ensure-id-in-map
   [ids->minutes id]
   (if (ids->minutes id)
     ids->minutes ; id already in map
     (assoc ids->minutes id (new-minute-counters)))) ; Add id to map, and init minute counters
 
-(defn- tally-nap
+(defn- count-nap
   "Increments the minute counter for each minute the guard was asleep.
   It returns the updated `ids->minutes` map."
   [ids->minutes nap]
@@ -63,7 +63,7 @@
   [naps]
   (reduce (fn [ids->minutes nap]
             (let [ids->minutes (ensure-id-in-map ids->minutes (:id nap))]
-              (tally-nap ids->minutes nap)))
+              (count-nap ids->minutes nap)))
           {} naps))
 
 (defn- most-naps-total
