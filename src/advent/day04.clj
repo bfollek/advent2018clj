@@ -5,16 +5,16 @@
 
 (defrecord Nap [id fell-asleep woke-up])
 
-(defn- new-minute-counters
-  "Returns a vector of 60 zeros, one for each minute."
-  []
+
+(def ^:private new-minute-counters
+  "A vector of 60 zeros, one for each minute."
   (vec (take 60 (repeat 0))))
 
 (defn- ensure-id-in-map
   [ids->minutes id]
   (if (ids->minutes id)
     ids->minutes ; id already in map
-    (assoc ids->minutes id (new-minute-counters)))) ; Add id to map, and init minute counters
+    (assoc ids->minutes id new-minute-counters))) ; Add id to map, and init minute counters
 
 (defn- count-nap
   "Increments the minute counter for each minute the guard was asleep.
